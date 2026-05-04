@@ -248,6 +248,15 @@ export function useSecureDrop() {
         await connectionsRef.current.get(msg.fromPeerId)?.addIceCandidate(msg.candidate);
         break;
 
+      case "ecdh-pubkey": {
+        const derivedKey = await deriveSessionKey(
+          keyPairRef.current!.privateKey,
+          msg.publicKeyJwk,
+        );
+        sessionKeysRef.current.set(msg.fromPeerId, derivedKey);
+        break;
+      }
+
       case "transfer-request":
         setState((prev) => ({
           ...prev,

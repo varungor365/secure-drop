@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 222 47% 4%;
+    --foreground: 213 31% 91%;
+    --card: 222 47% 6%;
+    --card-foreground: 213 31% 91%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 4%;
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 47% 11%;
+    --muted-foreground: 215 16% 57%;
+    --accent: 222 47% 11%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 212 27% 84%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border box-border; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* ── Rocket animations ─────────────────────────────────────────────── */
+@keyframes rocket-launch {
+  0%   { transform: translateY(0)    rotate(-45deg) scale(1);   opacity: 1; }
+  20%  { transform: translateY(-40px) rotate(-45deg) scale(1.1); opacity: 1; }
+  80%  { transform: translateY(-200vh) rotate(-45deg) scale(0.6); opacity: 0.5; }
+  100% { transform: translateY(-220vh) rotate(-45deg) scale(0);   opacity: 0; }
+}
+@keyframes rocket-land {
+  0%   { transform: translateY(-220vh) rotate(135deg) scale(0);   opacity: 0; }
+  20%  { transform: translateY(-60px)  rotate(135deg) scale(0.9); opacity: 0.8; }
+  70%  { transform: translateY(20px)   rotate(135deg) scale(1.1); opacity: 1; }
+  85%  { transform: translateY(-8px)   rotate(135deg) scale(0.95); opacity: 1; }
+  100% { transform: translateY(0)      rotate(135deg) scale(1);   opacity: 1; }
+}
+@keyframes flame {
+  0%, 100% { transform: scaleY(1)   scaleX(1);   opacity: 0.8; }
+  50%       { transform: scaleY(1.4) scaleX(0.8); opacity: 0.6; }
+}
+
+.animate-rocket-launch { animation: rocket-launch 1.4s ease-in forwards; }
+.animate-rocket-land   { animation: rocket-land   1.4s ease-out forwards; }
+.animate-flame         { animation: flame 0.2s ease-in-out infinite; transform-origin: bottom center; }

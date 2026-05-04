@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure-Drop — Project Showcase</title>
+  <meta name="description" content="Zero-relay, end-to-end encrypted P2P file transfer. Any device to any device." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #040d18;
+      --surface: #0b1828;
+      --card:    #0d1f35;
+      --border:  rgba(255,255,255,0.07);
+      --borderA: rgba(34,211,238,0.25);
+      --accent:  #22d3ee;
+      --aD:      rgba(34,211,238,0.09);
+      --aG:      rgba(34,211,238,0.18);
+      --purple:  #818cf8;
+      --text:    #f1f5f9;
+      --sub:     #8da3be;
+      --ok:      #34d399;
+      --warn:    #fbbf24;
+      --ui:      'Space Grotesk', Inter, system-ui, sans-serif;
+      --mono:    'JetBrains Mono', 'SF Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 90% 50% at 50% -5%, rgba(34,211,238,0.07), transparent 55%),
+        radial-gradient(rgba(34,211,238,0.055) 1px, transparent 1px);
+      background-size: 100% 100%, 28px 28px;
+      color: var(--text);
+      font-family: var(--ui);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout ── */
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 72px 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(4,13,24,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 58px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo span { font-size: 17px; font-weight: 700; letter-spacing: -0.03em; }
+    .nav-logo .accent { color: var(--accent); }
+    nav .spacer { flex: 1; }
+    .badge {
+      font-size: 11px; font-family: var(--mono);
+      padding: 3px 10px; border-radius: 20px;
+      border: 1px solid var(--borderA);
+      background: var(--aD); color: var(--accent);
+    }
+
+    /* ── Hero ── */
+    .hero { text-align: center; padding: 100px 0 80px; }
+    .hero-logo {
+      width: 88px; height: 88px; border-radius: 24px; margin: 0 auto 28px;
+      background: var(--aD); border: 1.5px solid var(--borderA);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 44px;
+      box-shadow: 0 0 60px rgba(34,211,238,0.2);
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 700; letter-spacing: -0.04em;
+      line-height: 1.1; margin-bottom: 20px;
+    }
+    .hero h1 .accent { color: var(--accent); }
+    .hero .tagline {
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--sub); max-width: 600px; margin: 0 auto 36px;
+    }
+    .enc-pills {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      justify-content: center; margin-bottom: 44px;
+    }
+    .enc-pill {
+      font-size: 12px; font-family: var(--mono);
+      padding: 5px 14px; border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--card); color: var(--sub);
+    }
+    .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      padding: 13px 32px; border-radius: 12px; font-size: 15px; font-weight: 700;
+      background: linear-gradient(135deg, #22d3ee, #818cf8);
+      color: #fff; border: none; cursor: pointer; font-family: var(--ui);
+      box-shadow: 0 4px 24px rgba(34,211,238,0.35);
+      text-decoration: none; display: inline-block;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { box-shadow: 0 6px 32px rgba(34,211,238,0.5); transform: translateY(-1px); text-decoration: none; }
+    .btn-secondary {
+      padding: 13px 32px; border-radius: 12px; font-size: 15px; font-weight: 600;
+      background: var(--card); color: var(--text);
+      border: 1px solid var(--border); cursor: pointer; font-family: var(--ui);
+      text-decoration: none; display: inline-block;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--borderA); background: var(--aD); text-decoration: none; }
+
+    /* ── Section titles ── */
+    .section-label {
+      font-size: 11px; font-weight: 700; color: var(--sub);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      font-family: var(--mono); margin-bottom: 32px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 700;
+      letter-spacing: -0.03em; margin-bottom: 14px;
+    }
+    .section-sub { font-size: 16px; color: var(--sub); max-width: 540px; }
+
+    /* ── Feature cards ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px; margin-top: 40px;
+    }
+    .feature-card {
+      padding: 24px; border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      border-color: var(--borderA);
+      box-shadow: 0 4px 24px rgba(34,211,238,0.1);
+    }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 14px; margin-bottom: 16px;
+      background: var(--aD); border: 1px solid var(--borderA);
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+    }
+    .feature-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--sub); line-height: 1.5; }
+
+    /* ── How it works ── */
+    .steps { display: flex; gap: 0; margin-top: 40px; flex-wrap: wrap; }
+    .step {
+      flex: 1; min-width: 220px; padding: 28px 24px; position: relative;
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: 0;
+    }
+    .step:first-child { border-radius: 18px 0 0 18px; }
+    .step:last-child  { border-radius: 0 18px 18px 0; }
+    .step + .step { border-left: none; }
+    .step-num {
+      width: 36px; height: 36px; border-radius: "50%"; border-radius: 50%;
+      background: linear-gradient(135deg, #22d3ee, #818cf8);
+      color: #fff; font-size: 15px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px; flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(34,211,238,0.3);
+    }
+    .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .step p  { font-size: 13px; color: var(--sub); }
+    .step-arrow {
+      position: absolute; right: -14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px; color: var(--accent); z-index: 1;
+    }
+
+    /* ── Architecture ── */
+    .arch-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 28px; margin-top: 40px; overflow-x: auto;
+    }
+    .arch-box pre {
+      font-family: var(--mono); font-size: 13px; color: var(--sub);
+      white-space: pre; line-height: 1.7;
+    }
+    .arch-box pre .hl { color: var(--accent); }
+
+    /* ── Tech stack ── */
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px; margin-top: 40px;
+    }
+    .stack-item {
+      padding: 16px 18px; border-radius: 14px;
+      border: 1px solid var(--border); background: var(--card);
+    }
+    .stack-layer {
+      font-size: 10px; font-weight: 700; color: var(--sub);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      font-family: var(--mono); margin-bottom: 6px;
+    }
+    .stack-tech { font-size: 14px; font-weight: 600; color: var(--text); }
+
+    /* ── Screenshots ── */
+    .screenshots-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 20px; margin-top: 40px;
+    }
+    .screenshot-frame {
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    }
+    .screenshot-frame img { width: 100%; display: block; }
+    .screenshot-placeholder {
+      width: 100%; aspect-ratio: 16/9;
+      background: var(--surface);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; padding: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .screenshot-placeholder .ph-icon { font-size: 40px; opacity: 0.4; }
+    .screenshot-placeholder .ph-label {
+      font-size: 13px; color: var(--sub); text-align: center;
+      font-family: var(--mono);
+    }
+    .screenshot-caption {
+      padding: 14px 16px; background: var(--card);
+    }
+    .screenshot-caption strong { font-size: 14px; font-weight: 600; display: block; margin-bottom: 4px; }
+    .screenshot-caption span { font-size: 12px; color: var(--sub); }
+
+    /* ── Security ── */
+    .security-table { width: 100%; border-collapse: collapse; margin-top: 40px; }
+    .security-table th, .security-table td {
+      padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .security-table th {
+      font-size: 11px; font-weight: 700; color: var(--sub);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      font-family: var(--mono); background: var(--surface);
+    }
+    .security-table tr:last-child td { border-bottom: none; }
+    .security-table td:first-child { color: var(--accent); font-weight: 600; }
+    .security-table td:last-child { color: var(--sub); font-family: var(--mono); font-size: 12px; }
+
+    /* ── Setup ── */
+    .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
+    @media (max-width: 640px) { .setup-grid { grid-template-columns: 1fr; } }
+    .setup-card {
+      padding: 24px; border-radius: 18px;
+      border: 1px solid var(--border); background: var(--card);
+    }
+    .setup-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .setup-card .setup-sub { font-size: 13px; color: var(--sub); margin-bottom: 16px; }
+    .setup-card code {
+      display: block; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; font-family: var(--mono);
+      font-size: 12px; color: var(--ok); line-height: 1.8;
+      white-space: pre-wrap; overflow-x: auto;
+    }
+
+    /* ── Stats row ── */
+    .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 40px; }
+    .stat-tile {
+      flex: 1; min-width: 130px; padding: 20px 18px; border-radius: 16px;
+      border: 1px solid var(--border); background: var(--card);
+      text-align: center;
+    }
+    .stat-num { font-size: 32px; font-weight: 700; color: var(--accent); font-family: var(--mono); }
+    .stat-label { font-size: 12px; color: var(--sub); margin-top: 6px; font-family: var(--mono); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+      background: rgba(4,13,24,0.8);
+    }
+    footer span { font-size: 12px; color: var(--sub); font-family: var(--mono); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .steps { flex-direction: column; }
+      .step { border-radius: 0 !important; }
+      .step:first-child { border-radius: 18px 18px 0 0 !important; }
+      .step:last-child  { border-radius: 0 0 18px 18px !important; }
+      .step + .step { border-left: 1px solid var(--border); border-top: none; }
+      .step-arrow { display: none; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">
+    <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="rgba(34,211,238,0.1)" stroke="#22d3ee" stroke-width="1.5"/>
+      <rect x="11" y="16" width="10" height="8" rx="2" fill="#22d3ee"/>
+      <path d="M12 16V13C12 10.8 13.8 9 16 9S20 10.8 20 13V16" stroke="#22d3ee" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="16" cy="20" r="1.5" fill="#040d18"/>
+    </svg>
+    <span>Secure<span class="accent">-Drop</span></span>
+  </div>
+  <div class="spacer"></div>
+  <span class="badge">AES-256-GCM</span>
+  <span class="badge">Zero Relay</span>
+  <span class="badge">P2P</span>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-logo">🔒</div>
+  <h1>Transfer files<br><span class="accent">without a cloud</span></h1>
+  <p class="tagline">End-to-end encrypted, peer-to-peer file transfer. Any device to any device. No accounts. No servers in the data path.</p>
+  <div class="enc-pills">
+    <span class="enc-pill">🔒 AES-256-GCM</span>
+    <span class="enc-pill">ECDH P-256</span>
+    <span class="enc-pill">HKDF-SHA-256</span>
+    <span class="enc-pill">SHA-256 Integrity</span>
+    <span class="enc-pill">Zero Relay</span>
+    <span class="enc-pill">MITM Fingerprints</span>
+  </div>
+  <div class="hero-ctas">
+    <a href="../start-lan.sh" class="btn-primary">Get Started — LAN</a>
+    <a href="PROJECT_REPORT.md" class="btn-secondary">Read Full Report</a>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<section>
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-tile"><div class="stat-num">256</div><div class="stat-label">AES bit key</div></div>
+      <div class="stat-tile"><div class="stat-num">P-256</div><div class="stat-label">ECDH curve</div></div>
+      <div class="stat-tile"><div class="stat-num">0</div><div class="stat-label">Cloud servers</div></div>
+      <div class="stat-tile"><div class="stat-num">16 KB</div><div class="stat-label">Chunk size</div></div>
+      <div class="stat-tile"><div class="stat-num">&lt;5%</div><div class="stat-label">CPU at idle</div></div>
+      <div class="stat-tile"><div class="stat-num">∞</div><div class="stat-label">File size limit</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section>
+  <div class="container">
+    <div class="section-label">Capabilities</div>
+    <h2 class="section-title">Everything you need, nothing you don't</h2>
+    <p class="section-sub">Built with browser-native APIs — no plugins, no installs, no accounts. Just open and transfer.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Military-grade Encryption</h3>
+        <p>Every chunk encrypted with AES-256-GCM before leaving your device. ECDH P-256 key exchange, HKDF-SHA-256 derivation, SHA-256 integrity verification.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>True Peer-to-Peer</h3>
+        <p>WebRTC DataChannel creates a direct device-to-device connection. The signaling server only facilitates the handshake — it never sees your files.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📤</div>
+        <h3>Drag & Drop Transfer</h3>
+        <p>Drop files onto the zone or directly onto a peer card. Click to browse or press ⌘O. Any file type, any size — limited only by your device RAM.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>QR Code Join</h3>
+        <p>Scan the in-app QR code to instantly connect a phone or tablet. The URL encodes the signaling server address — zero manual setup on the joining device.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Platform Independent</h3>
+        <p>Runs in any modern browser — Chrome, Safari, Firefox, Edge. Works on Mac, Windows, Linux, iOS, and Android. No native app required.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡</div>
+        <h3>MITM Detection</h3>
+        <p>Both peers derive a session fingerprint from the ECDH shared secret. Read it aloud to confirm no man-in-the-middle is intercepting the connection.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌙</div>
+        <h3>Dark & Light Mode</h3>
+        <p>Sci-fi dark mode by default. Toggle to a clean light mode with one click. Theme preference is persisted across sessions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Real-time Monitoring</h3>
+        <p>Live transfer speed, progress bars, CPU usage, memory, network throughput, and uptime — all visible in the system dashboard.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔁</div>
+        <h3>Auto-Reconnect</h3>
+        <p>Signaling connection drops are handled with exponential backoff (1s → 30s). Peers re-appear automatically after reconnection.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section>
+  <div class="container">
+    <div class="section-label">Flow</div>
+    <h2 class="section-title">Three steps to transfer</h2>
+    <p class="section-sub">Open the same URL on both devices — everything else is automatic.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Open & Connect</h3>
+        <p>Both devices open the same URL (LAN IP or Netlify domain). They register with the signaling server and appear in each other's peer list within seconds.</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Select File + Peer</h3>
+        <p>Drop a file into the zone or browse. Click the peer card you want to send to. The Send button lights up — cyan gradient glow confirms it's ready.</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Accept & Receive</h3>
+        <p>The recipient sees a request modal with file info, sender name, and the session fingerprint. They press Enter to accept. The file transfers directly — encrypted P2P.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ARCHITECTURE ── -->
+<section>
+  <div class="container">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">The server is just a matchmaker</h2>
+    <p class="section-sub">The signaling server handles only tiny JSON handshake messages. All file data flows directly between devices.</p>
+    <div class="arch-box">
+      <pre>
+<span class="hl">SENDER (Browser A)</span>                                  <span class="hl">RECEIVER (Browser B)</span>
+┌───────────────────────────────────┐                ┌──────────────────────────────────┐
+│  SignalingClient  ─── WebSocket ──┼────────────────┼── WebSocket ──  SignalingClient  │
+│  PeerConnection   ─── ICE/SDP ───┼────────────────┼── ICE/SDP ───   PeerConnection  │
+│  CryptoService    (ECDH + HKDF)  │                │  (ECDH + HKDF)   CryptoService  │
+│  ChunkTransfer  ──── DataChannel ┼════════════════┼═══ DataChannel ─  ChunkTransfer  │
+│  IntegrityVerify                 │   Direct P2P   │                  IntegrityVerify │
+└───────────────────────────────────┘  (no server)  └──────────────────────────────────┘
+              │                                                   │
+              └──────────────┐  Signaling Server  ┌──────────────┘
+                             │  ─────────────────  │
+                             │  Python WebSocket   │
+                             │  (peer registry +   │
+                             │   SDP/ICE relay)    │
+                             │  NEVER sees files   │
+                             └─────────────────────┘
+
+Data path:   File → <span class="hl">Encrypt(AES-256-GCM)</span> → Chunk(16KB) → WebRTC P2P → Decrypt → File
+Crypto:      ECDH P-256 → <span class="hl">shared secret</span> → HKDF-SHA-256 → AES-256 key → per-chunk IV
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ── TECH STACK ── -->
+<section>
+  <div class="container">
+    <div class="section-label">Technology</div>
+    <h2 class="section-title">Built with the right tools</h2>
+    <div class="stack-grid">
+      <div class="stack-item"><div class="stack-layer">Frontend</div><div class="stack-tech">React 18 + TypeScript</div></div>
+      <div class="stack-item"><div class="stack-layer">Build tool</div><div class="stack-tech">Vite 5</div></div>
+      <div class="stack-item"><div class="stack-layer">Styling</div><div class="stack-tech">Tailwind CSS + design tokens</div></div>
+      <div class="stack-item"><div class="stack-layer">Fonts</div><div class="stack-tech">Space Grotesk + JetBrains Mono</div></div>
+      <div class="stack-item"><div class="stack-layer">Transport</div><div class="stack-tech">WebRTC DataChannel</div></div>
+      <div class="stack-item"><div class="stack-layer">Signaling</div><div class="stack-tech">Python websockets (async)</div></div>
+      <div class="stack-item"><div class="stack-layer">Encryption</div><div class="stack-tech">Web Crypto API</div></div>
+      <div class="stack-item"><div class="stack-layer">Key exchange</div><div class="stack-tech">ECDH P-256</div></div>
+      <div class="stack-item"><div class="stack-layer">Key derivation</div><div class="stack-tech">HKDF-SHA-256</div></div>
+      <div class="stack-item"><div class="stack-layer">Cipher</div><div class="stack-tech">AES-256-GCM</div></div>
+      <div class="stack-item"><div class="stack-layer">Integrity</div><div class="stack-tech">SHA-256</div></div>
+      <div class="stack-item"><div class="stack-layer">QR code</div><div class="stack-tech">qrcode.react</div></div>
+      <div class="stack-item"><div class="stack-layer">Theme</div><div class="stack-tech">next-themes</div></div>
+      <div class="stack-item"><div class="stack-layer">Notifications</div><div class="stack-tech">sonner</div></div>
+      <div class="stack-item"><div class="stack-layer">LAN discovery</div><div class="stack-tech">mDNS (zeroconf)</div></div>
+      <div class="stack-item"><div class="stack-layer">Frontend hosting</div><div class="stack-tech">Netlify (free)</div></div>
+      <div class="stack-item"><div class="stack-layer">Signal hosting</div><div class="stack-tech">Railway (free tier)</div></div>
+      <div class="stack-item"><div class="stack-layer">NAT traversal</div><div class="stack-tech">STUN + TURN</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SCREENSHOTS ── -->
+<section>
+  <div class="container">
+    <div class="section-label">Screenshots</div>
+    <h2 class="section-title">See it in action</h2>
+    <p class="section-sub">Run the app at <code style="font-family:var(--mono);color:var(--accent);font-size:14px">http://localhost:8080</code> and take screenshots with ⌘+Shift+4, then save to <code style="font-family:var(--mono);color:var(--accent);font-size:14px">docs/screenshots/</code>.</p>
+
+    <div class="screenshots-grid" style="margin-top:32px">
+
+      <div class="screenshot-frame">
+        <!-- ADD SCREENSHOT: screenshots/01-main-dark.png -->
+        <!-- Replace the div below with: <img src="screenshots/01-main-dark.png" alt="Main dark mode UI"> -->
+        <div class="screenshot-placeholder">
+          <div class="ph-icon">🖥</div>
+          <div class="ph-label">01-main-dark.png<br>Main UI — dark mode idle state</div>
+        </div>
+        <div class="screenshot-caption">
+          <strong>Main Interface — Dark Mode</strong>
+          <span>File drop zone (hero), peer scanner, encryption strip, stats tiles</span>
+        </div>
+      </div>
+
+      <div class="screenshot-frame">
+        <!-- ADD SCREENSHOT: screenshots/02-file-selected.png -->
+        <div class="screenshot-placeholder">
+          <div class="ph-icon">📤</div>
+          <div class="ph-label">02-file-selected.png<br>File loaded + peer selected → Send button lit</div>
+        </div>
+        <div class="screenshot-caption">
+          <strong>File Selected + Peer Chosen</strong>
+          <span>Send button activates with cyan→purple gradient glow</span>
+        </div>
+      </div>
+
+      <div class="screenshot-frame">
+        <!-- ADD SCREENSHOT: screenshots/03-transfer-active.png -->
+        <div class="screenshot-placeholder">
+          <div class="ph-icon">⚡</div>
+          <div class="ph-label">03-transfer-active.png<br>Transfer in progress with progress bar</div>
+        </div>
+        <div class="screenshot-caption">
+          <strong>Active Transfer</strong>
+          <span>Speed in MB/s, percentage, animated gradient progress bar</span>
+        </div>
+      </div>
+
+      <div class="screenshot-frame">
+        <!-- ADD SCREENSHOT: screenshots/04-incoming-request.png -->
+        <div class="screenshot-placeholder">
+          <div class="ph-icon">📥</div>
+          <div class="ph-label">04-incoming-request.png<br>Incoming file request modal on receiver</div>
+        </div>
+        <div class="screenshot-caption">
+          <strong>Incoming Transfer Request</strong>
+          <span>Sender avatar, file info, SHA-256 hash, fingerprint, Accept/Reject</span>
+        </div>
+      </div>
+
+      <div class="screenshot-frame">
+        <!-- ADD SCREENSHOT: screenshots/05-qr-code.png -->
+        <div class="screenshot-placeholder">
+          <div class="ph-icon">📱</div>
+          <div class="ph-label">05-qr-code.png<br>QR code panel for joining another device</div>
+        </div>
+        <div class="screenshot-caption">
+          <strong>QR Code Join Panel</strong>
+          <span>Encodes app URL + signaling server — scan once, connect instantly</span>
+        </div>
+      </div>
+
+      <div class="screenshot-frame">
+        <!-- ADD SCREENSHOT: screenshots/06-light-mode.png -->
+        <div class="screenshot-placeholder">
+          <div class="ph-icon">☀️</div>
+          <div class="ph-label">06-light-mode.png<br>Light theme — same layout, lighter palette</div>
+        </div>
+        <div class="screenshot-caption">
+          <strong>Light Mode</strong>
+          <span>White/slate-blue palette with darker cyan accent for contrast</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── SECURITY ── -->
+<section>
+  <div class="container">
+    <div class="section-label">Security</div>
+    <h2 class="section-title">Cryptography you can verify</h2>
+    <p class="section-sub">Every security property is implemented using the browser's built-in Web Crypto API — auditable, standard, and hardware-accelerated.</p>
+    <table class="security-table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Standard</th>
+          <th>Implementation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Key exchange</td>
+          <td>NIST FIPS 186-4</td>
+          <td>ECDH P-256 — ephemeral per session, no pre-shared secrets</td>
+        </tr>
+        <tr>
+          <td>Key derivation</td>
+          <td>RFC 5869</td>
+          <td>HKDF-SHA-256 — context-bound to "secure-drop-v1"</td>
+        </tr>
+        <tr>
+          <td>Encryption</td>
+          <td>NIST SP 800-38D</td>
+          <td>AES-256-GCM — per-chunk, unique 96-bit IV, 128-bit auth tag</td>
+        </tr>
+        <tr>
+          <td>Integrity</td>
+          <td>FIPS 180-4</td>
+          <td>SHA-256 of complete file, verified on receipt before saving</td>
+        </tr>
+        <tr>
+          <td>MITM detection</td>
+          <td>Custom</td>
+          <td>8-char hex fingerprint from SHA-256(raw ECDH shared bits) — read aloud to verify</td>
+        </tr>
+        <tr>
+          <td>Forward secrecy</td>
+          <td>—</td>
+          <td>Ephemeral ECDH keys — compromise of one session reveals nothing about others</td>
+        </tr>
+        <tr>
+          <td>Server trust</td>
+          <td>—</td>
+          <td>Signaling server sees only peer IDs + SDP — never keys or file data</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── SETUP ── -->
+<section>
+  <div class="container">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">Up and running in minutes</h2>
+    <div class="setup-grid">
+      <div class="setup-card">
+        <h3>📡 Same Wi-Fi (LAN)</h3>
+        <p class="setup-sub">Zero config — just run the launcher script. Works offline.</p>
+        <code>pip3 install websockets zeroconf
+
+./start-lan.sh
+
+# Opens on:
+# This device  → localhost:8080
+# Other devices → 192.168.X.X:8080
+# Or scan QR code in the app</code>
+      </div>
+      <div class="setup-card">
+        <h3>🌐 Internet (Anywhere)</h3>
+        <p class="setup-sub">Deploy once — works from any device, any network, free.</p>
+        <code># 1. Deploy signaling → Railway
+#    Root dir: server
+#    Gets URL: wss://your.railway.app
+
+# 2. Deploy frontend → Netlify
+#    Env var:
+VITE_SIGNALING_URL=wss://your.railway.app
+#    Build: npm run build
+#    Publish: dist
+
+# 3. Open Netlify URL on any device</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span>Secure-Drop · Zero cloud · Zero relay · Fully encrypted</span>
+  <span>AES-256-GCM · ECDH P-256 · HKDF-SHA-256 · SHA-256 Integrity</span>
+  <span>React 18 · TypeScript · WebRTC · Python · MIT License</span>
+</footer>
+
+</body>
+</html>

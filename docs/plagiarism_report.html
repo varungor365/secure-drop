@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Plagiarism Report — Secure-Drop Capstone</title>
+<style>
+  * {box-sizing:border-box;margin:0;padding:0}
+  body {font-family:'Segoe UI',system-ui,sans-serif;background:#f9fafb;color:#111827;padding:32px 24px}
+  .container {max-width:1100px;margin:0 auto}
+  h1 {font-size:26px;font-weight:800;margin-bottom:4px}
+  .sub {color:#6b7280;font-size:14px;margin-bottom:32px}
+  .summary-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px}
+  .tile {background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center}
+  .tile .num {font-size:36px;font-weight:800}
+  .tile .lbl {font-size:12px;color:#6b7280;margin-top:4px}
+  .verdict {background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px 24px;
+             margin-bottom:32px;display:flex;align-items:center;gap:16px}
+  .verdict .icon {font-size:32px}
+  .verdict .text h3 {font-size:16px;font-weight:700}
+  .verdict .text p  {font-size:13px;color:#6b7280;margin-top:4px}
+  table {width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}
+  thead th {background:#f3f4f6;padding:12px;text-align:left;font-size:12px;text-transform:uppercase;
+             letter-spacing:.05em;color:#6b7280;font-weight:700}
+  tr:hover td {background:#fafafa}
+  .note {margin-top:24px;font-size:12px;color:#9ca3af;text-align:center}
+  .bar-wrap {background:#e5e7eb;border-radius:8px;height:10px;margin-top:8px}
+  .bar-fill  {height:10px;border-radius:8px;background:#f59e0b;width:15.8%}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Plagiarism Analysis Report</h1>
+  <div class="sub">Secure-Drop Capstone Project — DIT University UCF 439 &nbsp;|&nbsp;
+    Compared against: 8 reference sources
+    (RFCs + Wikipedia)</div>
+
+  <div class="summary-grid">
+    <div class="tile">
+      <div class="num" style="color:#f59e0b">15.8%</div>
+      <div class="lbl">Overall Similarity</div>
+      <div class="bar-wrap"><div class="bar-fill"></div></div>
+    </div>
+    <div class="tile">
+      <div class="num" style="color:#111">5,070</div>
+      <div class="lbl">Words Analysed</div>
+    </div>
+    <div class="tile">
+      <div class="num" style="color:#ef4444">2</div>
+      <div class="lbl">High-Risk Sections (&gt;30%)</div>
+    </div>
+    <div class="tile">
+      <div class="num" style="color:#f59e0b">2</div>
+      <div class="lbl">Medium-Risk Sections (15–30%)</div>
+    </div>
+    <div class="tile">
+      <div class="num" style="color:#22c55e">39</div>
+      <div class="lbl">Low-Risk Sections (&lt;15%)</div>
+    </div>
+    <div class="tile">
+      <div class="num" style="color:#6366f1">63</div>
+      <div class="lbl">Total Citations [N] Found</div>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <div class="icon">🟡</div>
+    <div class="text">
+      <h3>Verdict: MODERATE</h3>
+      <p>Review flagged sections and ensure all borrowed ideas are cited.</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:28%">Section</th>
+        <th style="width:10%">Score</th>
+        <th style="width:14%">Cosine / N-gram</th>
+        <th style="width:14%">Citations</th>
+        <th style="width:34%">Closest Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">1.1 Background</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#ef444422;color:#ef4444;font-weight:700;font-size:13px">
+          35.3%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        25.6% / 45.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          4 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        
+        <div style="margin:6px 0;padding:8px 12px;background:#fef2f2;border-left:3px solid #ef4444;
+                    font-size:12px;color:#374151;border-radius:0 6px 6px 0;">
+          <span style="color:#ef4444;font-weight:700">45% n-gram match</span>
+          vs <em>Wikipedia: WebRTC</em><br>
+          <span style="font-style:italic;color:#6b7280">&ldquo;Web Real-Time Communication (WebRTC), standardised by the World Wide Web Consortium (W3C) and the Internet Engineering Task Force (IETF) , offers a compelling alternative.&hellip;&rdquo;</span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">REFERENCES</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#ef444422;color:#ef4444;font-weight:700;font-size:13px">
+          34.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        23.0% / 46.7%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          29 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        
+        <div style="margin:6px 0;padding:8px 12px;background:#fef2f2;border-left:3px solid #ef4444;
+                    font-size:12px;color:#374151;border-radius:0 6px 6px 0;">
+          <span style="color:#ef4444;font-weight:700">47% n-gram match</span>
+          vs <em>RFC 8445 (ICE)</em><br>
+          <span style="font-style:italic;color:#6b7280">&ldquo;Rosenberg, &quot;Interactive Connectivity Establishment (ICE): A Protocol for Network Address Translator (NAT) Traversal,&quot; IETF RFC 8445, July 2018. [Online].&hellip;&rdquo;</span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">5.7 Signaling Server (signaling.py)</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f59e0b22;color:#f59e0b;font-weight:700;font-size:13px">
+          17.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        35.6% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#fee2e2;
+                     color:#ef4444;font-size:12px">
+          0 refs
+          ⚠ cite needed
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">B.1 Minimum Browser Requirements</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f59e0b22;color:#f59e0b;font-weight:700;font-size:13px">
+          15.2%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        30.4% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#fee2e2;
+                     color:#ef4444;font-size:12px">
+          0 refs
+          ⚠ cite needed
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">5.4 Cryptographic Engine (CryptoService.ts)</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          11.7%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        23.4% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          2 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: ECDH
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">2.4 End-to-End Encryption in File Transfer</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          10.5%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        21.0% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          7 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: ECDH
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">ABSTRACT</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          10.3%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        20.6% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">2.2 Peer-to-Peer File Transfer Protocols</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          9.7%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        19.4% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          2 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">4.3 Cryptographic Protocol Design</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          9.6%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        19.2% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          5 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: AES-GCM
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">4.1 High-Level Architecture</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          9.2%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        18.4% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">2.3 WebRTC for Browser-Based P2P</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          9.0%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        17.9% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          8 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">4.2 Signaling Server Design</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          8.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        17.6% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          1 ref
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">5.3 Peer Connection Engine (PeerConnection.ts)</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          8.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        17.6% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 8445 (ICE)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">CHAPTER 7: SUMMARY AND CONCLUSIONS</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          8.2%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        16.5% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">5.6 Integrity Verification (IntegrityVerifier.ts)</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          8.0%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        15.9% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: AES-GCM
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">3.1 Technical Feasibility</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          7.9%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        15.7% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">1.4 Scope of the Project</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          7.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        15.7% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">3.2 Operational Feasibility</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          7.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        15.7% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">TABLE OF CONTENTS</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          7.7%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        15.4% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">6.3 Security Testing</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          7.5%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        15.0% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: AES-GCM
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">DECLARATION</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          7.4%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        2.3% / 12.5%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 8445 (ICE)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        
+        <div style="margin:6px 0;padding:8px 12px;background:#fef2f2;border-left:3px solid #ef4444;
+                    font-size:12px;color:#374151;border-radius:0 6px 6px 0;">
+          <span style="color:#ef4444;font-weight:700">12% n-gram match</span>
+          vs <em>RFC 8445 (ICE)</em><br>
+          <span style="font-style:italic;color:#6b7280">&ldquo;The plagiarism check report is attached at the end of this document.&hellip;&rdquo;</span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">1.2 Problem Statement</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          7.3%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        14.6% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">5.2 Signaling Engine (SignalingClient.ts)</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          7.2%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        14.3% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 6455 (WebSocket)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">1.3 Objectives</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          6.9%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        13.8% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">2.1 Cloud-Based File Transfer</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          5.5%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        11.1% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          4 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">CHAPTER 8: SCOPE FOR FUTURE WORK</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          5.4%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        10.9% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          1 ref
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">5.8 User Interface</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          5.2%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        10.4% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">ACKNOWLEDGEMENTS</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          5.1%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        10.2% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">2.5 Summary of Literature</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          5.0%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        9.9% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 4566 (SDP)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">4.5 Data Flow Diagram</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          4.2%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        8.5% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 6455 (WebSocket)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">LIST OF ABBREVIATIONS</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          4.1%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        8.2% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: AES-GCM
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">6.1 Functional Testing</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          3.4%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        6.8% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">A.1 Prerequisites</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          3.2%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        6.5% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 6455 (WebSocket)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">5.1 Development Environment</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          3.1%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        6.2% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 6455 (WebSocket)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">1.5 Organisation of the Report</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          2.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        5.7% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">3.3 Economic Feasibility</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          2.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        5.5% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 6455 (WebSocket)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">6.4 Cross-Platform Testing</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          2.3%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        4.6% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: WebRTC
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">5.5 File Transfer Engine (ChunkTransfer.ts)</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          1.8%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        3.6% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 5869 (HKDF)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">4.4 Frontend Architecture</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          1.7%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        3.3% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 8445 (ICE)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">6.2 Performance Testing</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          1.7%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        3.4% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">SECURE-DROP: A ZERO-RELAY, END-TO-END ENCRYPTED PEER-TO-PEER</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          0.7%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        1.3% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        Wikipedia: P2P
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">LIST OF TABLES</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          0.7%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        1.3% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 4566 (SDP)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-weight:600;vertical-align:top">LIST OF FIGURES</td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#22c55e22;color:#22c55e;font-weight:700;font-size:13px">
+          0.4%
+        </span>
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top;color:#6b7280;font-size:13px">
+        0.8% / 0.0%
+      </td>
+      <td style="padding:12px;text-align:center;vertical-align:top">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;
+                     background:#f0fdf4;
+                     color:#16a34a;font-size:12px">
+          0 refs
+          
+        </span>
+      </td>
+      <td style="padding:12px;font-size:12px;color:#6b7280;vertical-align:top">
+        RFC 5869 (HKDF)
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5" style="padding:4px 12px 16px 24px;border-bottom:1px solid #f3f4f6">
+        <span style='color:#6b7280;font-size:12px'>No verbatim sentence matches detected.</span>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    Scores are estimated via TF-IDF cosine similarity and 5-gram exact matching against publicly
+    available reference documents (RFC texts, Wikipedia). This is a supplementary check only —
+    submit through Turnitin for the official university plagiarism report as required by the
+    DIT University UCF 439 booklet.
+    <br>Report generated: 24 April 2026, 00:22
+  </div>
+</div>
+</body>
+</html>

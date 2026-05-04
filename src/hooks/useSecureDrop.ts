@@ -52,13 +52,13 @@ function getDeviceHint(): string {
   const ua = navigator.userAgent;
   const browser = ua.includes("Chrome") ? "Chrome"
     : ua.includes("Firefox") ? "Firefox"
-    : ua.includes("Safari") ? "Safari"
-    : "Browser";
+      : ua.includes("Safari") ? "Safari"
+        : "Browser";
   const os = ua.includes("Mac") ? "macOS"
     : ua.includes("Win") ? "Windows"
-    : ua.includes("Android") ? "Android"
-    : ua.includes("Linux") ? "Linux"
-    : "Unknown OS";
+      : ua.includes("Android") ? "Android"
+        : ua.includes("Linux") ? "Linux"
+          : "Unknown OS";
   return `${browser} / ${os}`;
 }
 
@@ -85,7 +85,7 @@ export function useSecureDrop() {
 
   // Always-current reference to _beginSendTransfer — avoids stale closure in
   // handleSignalingMessage (which has [] deps for a stable identity).
-  const _beginSendTransferRef = useRef<(peerId: string) => Promise<void>>(async () => {});
+  const _beginSendTransferRef = useRef<(peerId: string) => Promise<void>>(async () => { });
 
   // Typed map of outbound pending transfers: toPeerId → { file, transferId }
   const pendingTransfersRef = useRef<Map<string, { file: File; transferId: string }>>(new Map());
@@ -131,7 +131,7 @@ export function useSecureDrop() {
 
   // ── Signaling Message Router (ref-based to avoid stale closures) ──────────
   // The ref is updated every render so the handler always has current state.
-  const handleSignalingMessageRef = useRef<(msg: SignalingMessage) => Promise<void>>(async () => {});
+  const handleSignalingMessageRef = useRef<(msg: SignalingMessage) => Promise<void>>(async () => { });
 
   // ── Connection Setup ───────────────────────────────────────────────────
 
@@ -182,7 +182,7 @@ export function useSecureDrop() {
       signalingRef.current?.disconnect();
       connectionsRef.current.forEach((c) => c.close());
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Signaling Message Router ───────────────────────────────────────────
@@ -282,12 +282,12 @@ export function useSecureDrop() {
           toPeerId: msg.fromPeerId,
           chunksReceived: Array.from(indices),
         });
-        
+
         // Setup WebRTC receive like acceptTransfer but without UI prompt
         const transfer = state.transfers.find(t => t.id === msg.transferId);
         if (transfer && transfer.direction === "receive" && transfer.state === "failed") {
           patchTransfer(msg.transferId, { state: "transferring" });
-          
+
           try {
             const waitForKey = () => new Promise<DerivedSessionKey>((resolve) => {
               const check = () => {
@@ -336,9 +336,9 @@ export function useSecureDrop() {
           const { file, transferId } = pending;
           const transfer = state.transfers.find(t => t.id === transferId);
           if (transfer) {
-            const missingIndices = Array.from({length: transfer.meta.totalChunks}, (_, i) => i)
-                                        .filter(i => !msg.chunksReceived.includes(i));
-            
+            const missingIndices = Array.from({ length: transfer.meta.totalChunks }, (_, i) => i)
+              .filter(i => !msg.chunksReceived.includes(i));
+
             _beginSendTransferRef.current(msg.fromPeerId, missingIndices);
           }
         }
@@ -351,7 +351,7 @@ export function useSecureDrop() {
     if (raw.type === "ecdh-pubkey" && raw.fromPeerId && raw.publicKeyJwk) {
       const theirKey = await importPeerPublicKey(raw.publicKeyJwk as JsonWebKey);
       const remoteId = raw.fromPeerId as string;
-      const localId  = localPeerIdRef.current ?? "";
+      const localId = localPeerIdRef.current ?? "";
       const canonicalId = [localId, remoteId].sort().join("|");
       const sessionKey = await deriveSharedSessionKey(
         keyPairRef.current!.privateKey,
@@ -452,7 +452,6 @@ export function useSecureDrop() {
       }));
       saveTransfer(transferOut).catch(console.error);
 
-
       // Step 5: Send transfer-request over signaling (metadata only).
       signaling.sendTransferRequest(toPeerId, meta);
 
@@ -549,136 +548,136 @@ export function useSecureDrop() {
     [state, patchState, patchTransfer],
   );
 
-  const rejectTransfer = useCallback(() => {
-    const { incomingRequest } = state;
-    if (!incomingRequest) return;
-    signalingRef.current!.sendTransferRejected(incomingRequest.fromPeer.id);
-    patchState({ incomingRequest: null });
-  }, [state, patchState]);
+const rejectTransfer = useCallback(() => {
+  const { incomingRequest } = state;
+  if (!incomingRequest) return;
+  signalingRef.current!.sendTransferRejected(incomingRequest.fromPeer.id);
+  patchState({ incomingRequest: null });
+}, [state, patchState]);
 
-  // Internal: begin actual file send after transfer-accepted signal.
-  const _beginSendTransfer = useCallback(
-    async (fromPeerId: string, missingIndices: number[] | null = null) => {
-      const conn = connectionsRef.current.get(fromPeerId);
-      if (!conn) return;
-      const pending = pendingTransfersRef.current.get(fromPeerId);
-      if (!pending) return;
-      const { file, transferId } = pending;
+// Internal: begin actual file send after transfer-accepted signal.
+const _beginSendTransfer = useCallback(
+  async (fromPeerId: string, missingIndices: number[] | null = null) => {
+    const conn = connectionsRef.current.get(fromPeerId);
+    if (!conn) return;
+    const pending = pendingTransfersRef.current.get(fromPeerId);
+    if (!pending) return;
+    const { file, transferId } = pending;
 
-      const waitForKey = () =>
-        new Promise<DerivedSessionKey>((resolve) => {
-          const check = () => {
-            const key = sessionKeysRef.current.get(fromPeerId);
-            if (key) return resolve(key);
-            setTimeout(check, 100);
-          };
-          check();
-        });
+    const waitForKey = () =>
+      new Promise<DerivedSessionKey>((resolve) => {
+        const check = () => {
+          const key = sessionKeysRef.current.get(fromPeerId);
+          if (key) return resolve(key);
+          setTimeout(check, 100);
+        };
+        check();
+      });
 
-      try {
-        const sessionKey = await waitForKey();
-        patchTransfer(transferId, { state: "encrypting" });
+    try {
+      const sessionKey = await waitForKey();
+      patchTransfer(transferId, { state: "encrypting" });
 
-        const abortController = new AbortController();
-        abortControllersRef.current.set(transferId, abortController);
+      const abortController = new AbortController();
+      abortControllersRef.current.set(transferId, abortController);
 
-        const startTime = Date.now();
-        await sendEncryptedFile(file, sessionKey.aesKey, conn, missingIndices, (sent, total) => {
-          const elapsed = (Date.now() - startTime) / 1000;
-          const bytesSent = sent * CHUNK_SIZE_BYTES;
-          const speedBps = elapsed > 0 ? bytesSent / elapsed : 0;
-          patchTransfer(transferId, {
-            chunksTransferred: sent,
-            speedBps,
-            state: "transferring",
-          });
-        }, abortController.signal);
-
-        abortControllersRef.current.delete(transferId);
+      const startTime = Date.now();
+      await sendEncryptedFile(file, sessionKey.aesKey, conn, missingIndices, (sent, total) => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        const bytesSent = sent * CHUNK_SIZE_BYTES;
+        const speedBps = elapsed > 0 ? bytesSent / elapsed : 0;
         patchTransfer(transferId, {
-          state: "completed",
-          completedAt: Date.now(),
-          integrityVerified: true,
+          chunksTransferred: sent,
+          speedBps,
+          state: "transferring",
         });
-      } catch (err: any) {
-        abortControllersRef.current.delete(transferId);
-        if (err?.name === "AbortError") {
-          console.log("[useSecureDrop] Transfer cancelled by user");
-          patchTransfer(transferId, { state: "failed" });
-        } else {
-          console.error("[useSecureDrop] Send transfer error:", err);
-          patchTransfer(transferId, { state: "failed" });
-        }
-      }
-    },
-    [patchTransfer],
-  );
+      }, abortController.signal);
 
-  // Keep the ref current on every render so handleSignalingMessage (stable [])
-  // always dispatches to the latest version of _beginSendTransfer.
-  _beginSendTransferRef.current = _beginSendTransfer;
-
-  const updateLocalLabel = useCallback((label: string) => {
-    localLabel.current = label;
-    patchState({ localLabel: label });
-    // Broadcast name change to all peers via signaling server
-    signalingRef.current?.send({ type: "update-label", label });
-  }, [patchState]);
-
-  const resumeTransfer = useCallback(async (transferId: string) => {
-    const transfer = state.transfers.find(t => t.id === transferId);
-    if (!transfer || transfer.state !== "failed") return;
-
-    if (transfer.direction === "send") {
-      patchTransfer(transferId, { state: "negotiating" });
-      const conn = new PeerConnection(transfer.peerId, signalingRef.current!, true);
-      connectionsRef.current.set(transfer.peerId, conn);
-      _attachConnectionHandlers(conn, transfer.peerId);
-      await conn.initiateOffer();
-
-      signalingRef.current!.send({
-        type: "ecdh-pubkey",
-        toPeerId: transfer.peerId,
-        publicKeyJwk: keyPairRef.current!.publicKeyJwk,
-      });
-
-      signalingRef.current!.send({
-        type: "transfer-resume-request",
-        toPeerId: transfer.peerId,
-        transferId
-      });
-    }
-    // Receiver resume not initiated from UI (they listen for resume-request)
-  }, [state.transfers, patchTransfer]);
-
-  const cancelTransfer = useCallback((transferId: string) => {
-    // Abort the send if it's in progress
-    const controller = abortControllersRef.current.get(transferId);
-    if (controller) {
-      controller.abort();
       abortControllersRef.current.delete(transferId);
-    }
-
-    // Close the peer connection
-    const transfer = state.transfers.find(t => t.id === transferId);
-    if (transfer) {
-      const conn = connectionsRef.current.get(transfer.peerId);
-      if (conn) {
-        conn.close();
-        connectionsRef.current.delete(transfer.peerId);
+      patchTransfer(transferId, {
+        state: "completed",
+        completedAt: Date.now(),
+        integrityVerified: true,
+      });
+    } catch (err: any) {
+      abortControllersRef.current.delete(transferId);
+      if (err?.name === "AbortError") {
+        console.log("[useSecureDrop] Transfer cancelled by user");
+        patchTransfer(transferId, { state: "failed" });
+      } else {
+        console.error("[useSecureDrop] Send transfer error:", err);
+        patchTransfer(transferId, { state: "failed" });
       }
     }
+  },
+  [patchTransfer],
+);
 
-    patchTransfer(transferId, { state: "failed" });
-  }, [state.transfers, patchTransfer]);
+// Keep the ref current on every render so handleSignalingMessage (stable [])
+// always dispatches to the latest version of _beginSendTransfer.
+_beginSendTransferRef.current = _beginSendTransfer;
 
-  return {
-    state,
-    sendFileRequest,
-    acceptTransfer,
-    rejectTransfer,
-    updateLocalLabel,
-    resumeTransfer,
-    cancelTransfer,
-  };
+const updateLocalLabel = useCallback((label: string) => {
+  localLabel.current = label;
+  patchState({ localLabel: label });
+  // Broadcast name change to all peers via signaling server
+  signalingRef.current?.send({ type: "update-label", label });
+}, [patchState]);
+
+const resumeTransfer = useCallback(async (transferId: string) => {
+  const transfer = state.transfers.find(t => t.id === transferId);
+  if (!transfer || transfer.state !== "failed") return;
+
+  if (transfer.direction === "send") {
+    patchTransfer(transferId, { state: "negotiating" });
+    const conn = new PeerConnection(transfer.peerId, signalingRef.current!, true);
+    connectionsRef.current.set(transfer.peerId, conn);
+    _attachConnectionHandlers(conn, transfer.peerId);
+    await conn.initiateOffer();
+
+    signalingRef.current!.send({
+      type: "ecdh-pubkey",
+      toPeerId: transfer.peerId,
+      publicKeyJwk: keyPairRef.current!.publicKeyJwk,
+    });
+
+    signalingRef.current!.send({
+      type: "transfer-resume-request",
+      toPeerId: transfer.peerId,
+      transferId
+    });
+  }
+  // Receiver resume not initiated from UI (they listen for resume-request)
+}, [state.transfers, patchTransfer]);
+
+const cancelTransfer = useCallback((transferId: string) => {
+  // Abort the send if it's in progress
+  const controller = abortControllersRef.current.get(transferId);
+  if (controller) {
+    controller.abort();
+    abortControllersRef.current.delete(transferId);
+  }
+
+  // Close the peer connection
+  const transfer = state.transfers.find(t => t.id === transferId);
+  if (transfer) {
+    const conn = connectionsRef.current.get(transfer.peerId);
+    if (conn) {
+      conn.close();
+      connectionsRef.current.delete(transfer.peerId);
+    }
+  }
+
+  patchTransfer(transferId, { state: "failed" });
+}, [state.transfers, patchTransfer]);
+
+return {
+  state,
+  sendFileRequest,
+  acceptTransfer,
+  rejectTransfer,
+  updateLocalLabel,
+  resumeTransfer,
+  cancelTransfer,
+};
 }

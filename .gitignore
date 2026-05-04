@@ -9,3 +9,4 @@ __pycache__/
 *.pyc
 .DS_Store
 .securedrop_nova_token
+.vercel

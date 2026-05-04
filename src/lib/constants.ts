@@ -17,11 +17,6 @@ export const SIGNALING_URL: string = resolveSignalingUrl();
  *   4. ws://localhost:8765 fallback
  */
 export function resolveSignalingUrl(): string {
-  // 1. Build-time env — used in Vercel production build
-  if (import.meta.env.VITE_SIGNALING_URL) {
-    return import.meta.env.VITE_SIGNALING_URL as string;
-  }
-
   if (typeof window !== "undefined") {
     // 2. ?ws= override from QR code
     const qs = new URLSearchParams(window.location.search).get("ws");

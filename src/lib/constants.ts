@@ -6,8 +6,7 @@
  */
 
 /** WebSocket signaling server connection (defaults to LAN loopback in dev). */
-export const SIGNALING_URL: string =
-  import.meta.env.VITE_SIGNALING_URL ?? "ws://localhost:8765";
+export const SIGNALING_URL: string = resolveSignalingUrl();
 
 /**
  * Resolve the signaling URL at runtime.

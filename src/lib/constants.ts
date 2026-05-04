@@ -28,12 +28,17 @@ export function resolveSignalingUrl(): string {
     const qs = new URLSearchParams(window.location.search).get("ws");
     if (qs) return qs;
 
-    // 3. Route through same host via Vite's /ws proxy (local dev).
+    // 3. If running on Vercel or any public domain, use the Render URL.
+    if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+      return "wss://secure-drop-bamd.onrender.com";
+    }
+
+    // 4. Route through same host via Vite's /ws proxy (local dev).
     const proto = window.location.protocol === "https:" ? "wss" : "ws";
     return `${proto}://${window.location.host}/ws`;
   }
 
-  // 4. Fallback
+  // 5. Fallback
   return "ws://localhost:8765";
 }
 /**

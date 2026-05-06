@@ -125,113 +125,72 @@ export const DeviceRadar: React.FC<DeviceRadarProps> = ({
 
   const showList = peers.length > 6;
 
-  if (showList) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {peers.map((peer) => {
-          const [pc1, pc2] = avatarColor(peer.id);
-          const DevIcon = getDeviceIcon(peer.deviceHint);
-          return (
-            <div
-              key={peer.id}
-              onClick={() => onPeerSelect(peer)}
-              className="sd-glass sd-glass-hover"
-              style={{
-                display: "flex", alignItems: "center", gap: 12,
-                padding: "10px 14px", borderRadius: 12, cursor: "pointer",
-                border: selectedPeer?.id === peer.id ? `1px solid ${pc1}` : undefined,
-                boxShadow: selectedPeer?.id === peer.id ? `0 0 12px ${pc1}44` : undefined,
-              }}
-            >
-              <div style={{
-                width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
-                background: `linear-gradient(135deg,${pc1},${pc2})`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "white" }}>
-                  {getInitials(peer.label)}
-                </span>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 14, color: "rgb(var(--sd-text))", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {peer.label}
-                </div>
-                <div style={{ fontSize: 11, color: "rgb(var(--sd-text-muted))" }}>
-                  <DevIcon size={10} style={{ display: "inline", marginRight: 4 }} />
-                  {peer.deviceHint}
-                </div>
-              </div>
-              {peer.connected && (
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: "rgb(74,222,128)" }} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
   return (
     <div
       ref={radarRef}
       onDragOver={handleRootDragOver}
       style={{
         position: "relative",
-        width: 380, height: 380,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        flexShrink: 0,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 360,
       }}
     >
       {/* Radar rings */}
-      {[156, 120, 84].map((r, i) => (
+      {[1, 0.66, 0.33].map((scale, i) => (
         <div
-          key={r}
-          className={`sd-radar-ring-${i + 1}`}
+          key={i}
           style={{
             position: "absolute",
-            width: r * 2, height: r * 2,
+            width: 340 * scale,
+            height: 340 * scale,
             borderRadius: "50%",
-            border: `1px solid rgba(var(--sd-accent),${0.18 - i * 0.04})`,
+            border: `1px solid rgba(130,150,175,${0.08 + i * 0.04})`,
             pointerEvents: "none",
           }}
         />
       ))}
 
-      {/* Rotating sweep line */}
+      {/* Sweep line */}
       <div
-        className="sd-spin"
         style={{
-          position: "absolute", width: 312, height: 312, borderRadius: "50%",
-          background: "conic-gradient(from 0deg, rgba(0,212,170,0.06) 0%, transparent 40%)",
+          position: "absolute",
+          width: 170,
+          height: 2,
+          transformOrigin: "left center",
+          background: `linear-gradient(to right, transparent, ${c1}66)`,
+          animation: "radar-sweep 3s linear infinite",
           pointerEvents: "none",
         }}
       />
 
-      {/* Local avatar at center */}
+      {/* Local node */}
       <div
-        className="sd-float"
         style={{
-          width: 76, height: 76, borderRadius: "50%", zIndex: 10,
-          background: `linear-gradient(135deg,${c1},rgb(130,100,255))`,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          boxShadow: `0 0 0 4px rgba(var(--sd-bg-void),1), 0 0 24px ${c1}66`,
-          border: "2px solid rgba(var(--sd-accent),0.5)",
+          position: "relative",
+          zIndex: 20,
+          width: 72,
+          height: 72,
+          borderRadius: "50%",
+          background: `linear-gradient(135deg, ${c1}, #8264FF)`,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: `0 0 0 3px rgba(0,212,170,0.3), 0 0 32px ${c1}44`,
         }}
       >
-        <span style={{ fontSize: 20, fontWeight: 700, color: "white", lineHeight: 1 }}>
+        <span style={{ fontSize: 18, fontWeight: 700, color: "white", lineHeight: 1 }}>
           {getInitials(localLabel)}
         </span>
-        <Laptop size={12} color="rgba(255,255,255,0.7)" style={{ marginTop: 2 }} />
-        <div style={{
-          position: "absolute", bottom: 4, right: 4,
-          width: 12, height: 12, borderRadius: "50%",
-          background: "rgb(74,222,128)", border: "2px solid rgba(0,0,0,0.4)",
-        }} />
+        <Laptop size={12} color="rgba(255,255,255,0.75)" style={{ marginTop: 2 }} />
       </div>
 
-      {/* Peer avatars orbiting */}
-      {peers.map((peer, i) => (
+      {/* Peer nodes */}
+      {!showList && peers.map((peer, i) => (
         <PeerOrbit
           key={peer.id}
           peer={peer}
@@ -243,27 +202,61 @@ export const DeviceRadar: React.FC<DeviceRadarProps> = ({
         />
       ))}
 
-      {/* Empty state hint */}
-      {peers.length === 0 && (
-        <div style={{
-          position: "absolute", top: "50%", left: "50%",
-          transform: "translate(-50%, calc(-50% + 60px))",
-          textAlign: "center", pointerEvents: "none",
-        }}>
-          <div style={{ fontSize: 12, color: "rgb(var(--sd-text-faint))", lineHeight: 1.5 }}>
-            Scanning for peers…
-          </div>
-        </div>
-      )}
-
-      {/* Hint when peer selected */}
-      {selectedPeer && (
-        <div style={{
-          position: "absolute", bottom: -30, left: "50%", transform: "translateX(-50%)",
-          fontSize: 11, color: "rgb(var(--sd-accent))", whiteSpace: "nowrap",
-          fontWeight: 500,
-        }}>
-          Drop a file onto {selectedPeer.label} or use the zone below
+      {/* List view for many peers */}
+      {showList && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 30,
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            maxHeight: 280,
+            overflowY: "auto",
+            padding: "8px 4px",
+          }}
+        >
+          {peers.map((peer) => {
+            const [pc1, pc2] = avatarColor(peer.id);
+            return (
+              <div
+                key={peer.id}
+                onClick={() => onPeerSelect(peer)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "8px 14px",
+                  borderRadius: 12,
+                  cursor: "pointer",
+                  background: selectedPeer?.id === peer.id
+                    ? `linear-gradient(135deg, ${pc1}22, ${pc2}22)`
+                    : "rgba(20,28,50,0.6)",
+                  border: `1px solid ${selectedPeer?.id === peer.id ? pc1 + "55" : "rgba(130,150,175,0.12)"}`,
+                }}
+              >
+                <div style={{
+                  width: 36, height: 36, borderRadius: "50%",
+                  background: `linear-gradient(135deg,${pc1},${pc2})`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 13, fontWeight: 700, color: "white",
+                }}>
+                  {getInitials(peer.label)}
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "rgb(220,230,245)" }}>
+                    {peer.label}
+                  </div>
+                  {peer.connected && (
+                    <div style={{ fontSize: 10, color: "rgb(74,222,128)" }}>Connected</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

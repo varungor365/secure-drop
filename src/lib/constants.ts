@@ -53,9 +53,9 @@ export const CHUNK_SIZE_BYTES = 262_144; // 256 KB — maximizes DataChannel thr
 /**
  * Maximum number of WebRTC DataChannel bytes allowed to queue
  * before the sender pauses and waits for drain.
- * 16 MB buffer allows high throughput without triggering browser disconnects.
+ * 1 MB buffer prevents quota exceeded errors on strict browsers like Safari iOS.
  */
-export const DC_BUFFER_THRESHOLD = 16_777_216; // 16 MB
+export const DC_BUFFER_THRESHOLD = 1_048_576; // 1 MB
 
 /** AES-256-GCM IV length in bytes (NIST SP 800-38D §8.2). */
 export const GCM_IV_LENGTH = 12;

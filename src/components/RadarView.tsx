@@ -15,9 +15,6 @@ const colorFor = (label: string): string => {
   return colors[Math.abs(h) % colors.length];
 };
 
-const initials = (s: string) =>
-  s.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-
 export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPeerIds = [], onSelectPeer }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const angleRef  = useRef(0);
@@ -31,8 +28,7 @@ export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPee
     const SIZE   = canvas.width;
     const CX     = SIZE / 2;
     const CY     = SIZE / 2;
-    const R      = SIZE * 0.4;   // ring radius
-    const DOT_R  = 20;
+    const R      = SIZE * 0.35;   // Smaller ring radius so avatars fit perfectly inside
 
     function draw() {
       ctx.clearRect(0, 0, SIZE, SIZE);
@@ -47,20 +43,13 @@ export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPee
       }
 
       // ── Radar sweep ───────────────────────────────────────────────
-      const sweep = ctx.createConicalGradient
-        ? null
-        : null; // fallback: manual arc
       const a = angleRef.current;
-      const grd = ctx.createConicalGradient
-        ? (ctx as any).createConicalGradient(CX, CY, a)
-        : null;
-
-      // Draw sweep as a filled arc sector
+      
       ctx.beginPath();
       ctx.moveTo(CX, CY);
-      ctx.arc(CX, CY, R * 1.01, a - Math.PI * 0.35, a);
+      ctx.arc(CX, CY, R * 1.05, a - Math.PI * 0.35, a);
       ctx.closePath();
-      const swGrad = ctx.createRadialGradient(CX, CY, 0, CX, CY, R);
+      const swGrad = ctx.createRadialGradient(CX, CY, 0, CX, CY, R * 1.05);
       swGrad.addColorStop(0, "rgba(99,102,241,0)");
       swGrad.addColorStop(1, "rgba(99,102,241,0.25)");
       ctx.fillStyle = swGrad;
@@ -69,12 +58,12 @@ export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPee
       // Sweep leading edge
       ctx.beginPath();
       ctx.moveTo(CX, CY);
-      ctx.lineTo(CX + Math.cos(a) * R, CY + Math.sin(a) * R);
+      ctx.lineTo(CX + Math.cos(a) * R * 1.05, CY + Math.sin(a) * R * 1.05);
       ctx.strokeStyle = "rgba(99,102,241,0.7)";
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // ── Peer nodes ────────────────────────────────────────────────
+      // ── Connecting Lines ──────────────────────────────────────────
       peers.forEach((peer, idx) => {
         const angle = (idx / Math.max(peers.length, 1)) * Math.PI * 2 - Math.PI / 2;
         const px = CX + Math.cos(angle) * R;
@@ -82,7 +71,6 @@ export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPee
         const isSelected = selectedPeerIds.includes(peer.id);
         const color = colorFor(peer.label);
 
-        // Connection line to center
         ctx.beginPath();
         ctx.moveTo(CX, CY);
         ctx.lineTo(px, py);
@@ -91,58 +79,7 @@ export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPee
         ctx.setLineDash([4, 6]);
         ctx.stroke();
         ctx.setLineDash([]);
-
-        // Ping ring when peer is selected
-        if (isSelected) {
-          ctx.beginPath();
-          ctx.arc(px, py, DOT_R + 6, 0, Math.PI * 2);
-          ctx.strokeStyle = `${color}55`;
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-        }
-
-        // Avatar circle
-        ctx.beginPath();
-        ctx.arc(px, py, DOT_R, 0, Math.PI * 2);
-        ctx.fillStyle = isSelected ? color : `${color}cc`;
-        ctx.fill();
-
-        // Online dot
-        ctx.beginPath();
-        ctx.arc(px + DOT_R * 0.7, py - DOT_R * 0.7, 4, 0, Math.PI * 2);
-        ctx.fillStyle = peer.connected ? "#10b981" : "#f59e0b";
-        ctx.fill();
-
-        // Initials text
-        ctx.fillStyle = "#fff";
-        ctx.font = `bold 10px Inter, sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(initials(peer.label), px, py);
-
-        // Label below node (outside ring)
-        const labelX = CX + Math.cos(angle) * (R + DOT_R + 12);
-        const labelY = CY + Math.sin(angle) * (R + DOT_R + 12);
-        ctx.fillStyle = isSelected ? color : "rgba(200,210,230,0.9)";
-        ctx.font = `${isSelected ? "bold " : ""}10px Inter, sans-serif`;
-        ctx.fillText(peer.label.split(" ")[0], labelX, labelY);
       });
-
-      // ── Center (local device) ─────────────────────────────────────
-      ctx.beginPath();
-      ctx.arc(CX, CY, 22, 0, Math.PI * 2);
-      ctx.fillStyle = "#6366f1";
-      ctx.fill();
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 11px Inter, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(initials(localLabel), CX, CY);
-
-      // YOU label
-      ctx.fillStyle = "rgba(180,190,220,0.8)";
-      ctx.font = "9px Inter, sans-serif";
-      ctx.fillText("YOU", CX, CY + 34);
 
       angleRef.current = (angleRef.current + 0.018) % (Math.PI * 2);
       rafRef.current = requestAnimationFrame(draw);
@@ -150,43 +87,74 @@ export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPee
 
     rafRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [peers, localLabel, selectedPeerIds]);
-
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!onSelectPeer || peers.length === 0) return;
-    const canvas = canvasRef.current!;
-    const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const my = (e.clientY - rect.top)  * (canvas.height / rect.height);
-    const SIZE = canvas.width;
-    const CX = SIZE / 2, CY = SIZE / 2, R = SIZE * 0.4;
-
-    peers.forEach((peer, idx) => {
-      const angle = (idx / Math.max(peers.length, 1)) * Math.PI * 2 - Math.PI / 2;
-      const px = CX + Math.cos(angle) * R;
-      const py = CY + Math.sin(angle) * R;
-      const dist = Math.hypot(mx - px, my - py);
-      if (dist < 28) onSelectPeer(peer);
-    });
-  };
+  }, [peers, selectedPeerIds]);
 
   return (
-    <div className="relative w-full aspect-square select-none">
+    <div className="relative w-full aspect-square select-none overflow-visible">
+      {/* Background Canvas */}
       <canvas
         ref={canvasRef}
         width={340}
         height={340}
-        onClick={handleClick}
-        className="w-full h-full cursor-pointer"
-        style={{ borderRadius: "50%" }}
+        className="absolute inset-0 w-full h-full pointer-events-none"
       />
+      
+      {/* Empty State */}
       {peers.length === 0 && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <p className="text-xs text-muted-foreground text-center mt-4 opacity-60">
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
+          <p className="text-xs text-muted-foreground text-center mt-6 opacity-60">
             Scanning for<br />nearby devices…
           </p>
         </div>
       )}
+
+      {/* Center Node (Local User) */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10 pointer-events-none">
+        <div className="h-14 w-14 rounded-full bg-indigo-500 shadow-lg border-2 border-background flex items-center justify-center overflow-hidden relative">
+          <img src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(localLabel)}`} alt="You" className="h-full w-full object-cover p-1 bg-black/10" />
+        </div>
+        <p className="mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-background/80 backdrop-blur border shadow-sm">
+          You
+        </p>
+      </div>
+
+      {/* Peer Nodes */}
+      {peers.map((peer, idx) => {
+        const angle = (idx / Math.max(peers.length, 1)) * Math.PI * 2 - Math.PI / 2;
+        // 35% is the 'R' radius offset
+        const left = `calc(50% + ${Math.cos(angle) * 35}%)`;
+        const top = `calc(50% + ${Math.sin(angle) * 35}%)`;
+        const isSelected = selectedPeerIds.includes(peer.id);
+        const color = colorFor(peer.label);
+
+        return (
+          <button
+            key={peer.id}
+            onClick={() => onSelectPeer && onSelectPeer(peer)}
+            className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group transition-transform hover:scale-110 z-20"
+            style={{ left, top }}
+          >
+            {/* Ping Ring for Selected */}
+            {isSelected && (
+              <span className="absolute inset-0 m-auto h-16 w-16 rounded-full animate-ping opacity-20" style={{ backgroundColor: color }} />
+            )}
+            
+            <div 
+              className={`h-12 w-12 rounded-full shadow-lg border-2 flex items-center justify-center relative overflow-hidden transition-all duration-300 ${isSelected ? "ring-4 ring-offset-2 ring-primary/40" : ""}`}
+              style={{ borderColor: color, backgroundColor: `${color}20` }}
+            >
+              <img src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(peer.label)}`} alt={peer.label} className="h-full w-full object-cover p-1 drop-shadow-md" />
+              
+              {/* Online Indicator */}
+              <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${peer.connected ? "bg-emerald-500" : "bg-amber-500"}`} />
+            </div>
+
+            <p className="mt-1.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-background/90 backdrop-blur shadow-sm whitespace-nowrap border" style={{ borderColor: `${color}40` }}>
+              {peer.label}
+            </p>
+          </button>
+        );
+      })}
     </div>
   );
 };

@@ -65,7 +65,10 @@ function decodeFrame(frame: ArrayBuffer): {
   const view = new DataView(frame);
   const chunkIndex = view.getUint32(0, true);
   const totalChunks = view.getUint32(4, true);
-  const iv = new Uint8Array(frame, 8, 12);
+  // Slice the IV to create a fresh ArrayBuffer. 
+  // Safari's WebCrypto API has a known bug where passing an ArrayBuffer view (e.g. new Uint8Array(buffer, offset, length)) 
+  // causes it to ignore the offset/length and use the entire underlying buffer as the IV, causing decryption to fail.
+  const iv = new Uint8Array(frame.slice(8, 20));
   const ciphertext = frame.slice(FRAME_HEADER_SIZE);
   return { chunkIndex, totalChunks, iv, ciphertext };
 }

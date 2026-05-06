@@ -66,6 +66,10 @@ export const FileDropZone: React.FC<Props> = ({
     return () => window.removeEventListener("keydown", handler);
   }, [disabled]);
 
+  useEffect(() => {
+    if (disabled) { setPreviewFile(null); setImagePreview(null); }
+  }, [disabled]);
+
   const onDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     if (!disabled) setIsDragging(true);
@@ -94,10 +98,6 @@ export const FileDropZone: React.FC<Props> = ({
     if (file) handleFile(file);
   };
 
-  useEffect(() => {
-    if (disabled) { setPreviewFile(null); setImagePreview(null); }
-  }, [disabled]);
-
   return (
     <div
       id="file-drop-zone"
@@ -118,51 +118,125 @@ export const FileDropZone: React.FC<Props> = ({
         type="file"
         className="hidden"
         onChange={onInputChange}
-        aria-hidden
       />
 
       {previewFile ? (
-        <div className="flex flex-col items-center gap-3 sd-animate-scale-in text-center">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 12,
+            width: "100%",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
           {imagePreview ? (
-            <div style={{ width: 80, height: 80, borderRadius: 12, overflow: "hidden", border: "2px solid rgba(130,100,255,0.4)" }}>
-              <img src={imagePreview} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-          ) : getFileIcon(previewFile.type)}
-          <div>
-            <p className="font-semibold" style={{ color: "rgb(var(--sd-text))", fontSize: 15, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {previewFile.name}
-            </p>
-            <p style={{ color: "rgb(var(--sd-text-muted))", fontSize: 13 }}>
-              {formatBytes(previewFile.size)} · {previewFile.type || "unknown type"}
-            </p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span className="sd-badge sd-badge-teal" style={{ fontSize: 11 }}>
-              Ready to send{targetPeerLabel ? ` to ${targetPeerLabel}` : ""}
-            </span>
-            <button
-              onClick={(e) => { e.stopPropagation(); setPreviewFile(null); setImagePreview(null); }}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "rgb(var(--sd-text-faint))", display: "flex", alignItems: "center" }}
+            <img
+              src={imagePreview}
+              alt="Preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: 120,
+                borderRadius: 8,
+                objectFit: "contain",
+              }}
+            />
+          ) : (
+            getFileIcon(previewFile.type)
+          )}
+
+          <div style={{ textAlign: "center" }}>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "rgb(220, 230, 245)",
+                marginBottom: 2,
+                wordBreak: "break-all",
+              }}
             >
-              <X size={14} />
-            </button>
+              {previewFile.name}
+            </div>
+            <div style={{ fontSize: 12, color: "rgb(130, 150, 175)" }}>
+              {formatBytes(previewFile.size)}
+              {previewFile.type && ` · ${previewFile.type}`}
+            </div>
           </div>
+
+          {targetPeerLabel && (
+            <div
+              style={{
+                fontSize: 12,
+                color: "rgb(0, 212, 170)",
+                fontWeight: 500,
+              }}
+            >
+              → {targetPeerLabel}
+            </div>
+          )}
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setPreviewFile(null);
+              setImagePreview(null);
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              fontSize: 12,
+              color: "rgb(130, 150, 175)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "4px 8px",
+              borderRadius: 6,
+            }}
+          >
+            <X size={12} />
+            Change file
+          </button>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-3 text-center">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <Upload
+            size={36}
+            style={{ color: "rgb(130, 100, 255)", opacity: 0.8 }}
+          />
+          <div style={{ textAlign: "center" }}>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: "rgb(220, 230, 245)",
+                marginBottom: 4,
+              }}
+            >
+              Drop file here or click to browse
+            </div>
+            <div style={{ fontSize: 12, color: "rgb(130, 150, 175)" }}>
+              {targetPeerLabel
+                ? `Sending to ${targetPeerLabel}`
+                : "Select a peer first"}
+            </div>
+          </div>
           <div
-            className="flex items-center justify-center rounded-2xl"
-            style={{ width: 64, height: 64, background: "rgba(var(--sd-accent),0.07)", border: "1px dashed rgba(var(--sd-accent),0.35)" }}
+            style={{
+              fontSize: 11,
+              color: "rgba(130, 150, 175, 0.5)",
+              marginTop: 4,
+            }}
           >
-            <Upload size={26} style={{ color: "rgba(var(--sd-accent),0.7)" }} />
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "rgb(var(--sd-text))", fontSize: 15 }}>Drop a file here</p>
-            <p style={{ color: "rgb(var(--sd-text-muted))", fontSize: 13, marginTop: 2 }}>or click to browse · any format · any size</p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <p style={{ color: "rgba(var(--sd-accent),0.6)", fontSize: 11, fontWeight: 500 }}>🔒 Encrypted before leaving your device</p>
-            <span style={{ fontSize: 10, color: "rgb(var(--sd-text-faint))", fontFamily: "monospace", background: "rgba(var(--sd-bg-raised),0.8)", border: "1px solid rgba(var(--sd-border),1)", borderRadius: 4, padding: "1px 5px" }}>⌘O</span>
+            ⌘O / Ctrl+O to open
           </div>
         </div>
       )}

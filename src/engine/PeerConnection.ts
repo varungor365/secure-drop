@@ -197,7 +197,8 @@ export class PeerConnection {
       }
       isProcessing = false;
     };
-    // (can happen on the receiver side), fire the open event manually.
+
+    // If the DataChannel is already open by the time we attach handlers
     if (dc.readyState === "open") {
       this.stateHandlers.forEach((h) => h("open"));
     }
@@ -222,13 +223,5 @@ export class PeerConnection {
       processQueue();
     };
 
-    // Keep-alive heartbeat (prevents some mobile carriers from dropping idle UDP/TCP sessions)
-    const heartbeat = setInterval(() => {
-      if (dc.readyState === "open") {
-        try { dc.send("ping"); } catch(e) {}
-      } else {
-        clearInterval(heartbeat);
-      }
-    }, 5000);
   }
 }

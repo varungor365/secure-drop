@@ -26,9 +26,10 @@ export const QRConnect: React.FC<QRConnectProps> = ({ serverLanIp, onClose }) =>
     }
 
     // Otherwise (public tunnel or already using IP), use the current browser URL.
+    // We do NOT append ?ws= here because the phone will automatically resolve the 
+    // correct Render signaling URL via constants.ts when it detects a public hostname.
     const appUrl = `${window.location.protocol}//${window.location.host}`;
-    const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
-    return `${appUrl}?ws=${encodeURIComponent(wsUrl)}`;
+    return appUrl;
   }, [serverLanIp]);
 
   const handleCopy = async () => {

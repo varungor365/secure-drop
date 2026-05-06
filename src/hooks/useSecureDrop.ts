@@ -278,12 +278,14 @@ export function useSecureDrop() {
       case "ecdh-pubkey": {
         const theirKey = await importPeerPublicKey(msg.publicKeyJwk as JsonWebKey);
         const remoteId = msg.fromPeerId;
-        const localId = localPeerIdRef.current ?? "";
+        // Use the state's localPeerId if available, fallback to the ref
+        const localId = state.localPeerId || localPeerIdRef.current || "";
         const canonicalId = [localId, remoteId].sort().join("|");
+        
         const sessionKey = await deriveSharedSessionKey(
           keyPairRef.current!.privateKey,
           theirKey,
-          canonicalId,
+          canonicalId // CRITICAL: Must be identical on both peers
         );
         sessionKeysRef.current.set(remoteId, sessionKey);
         setState((prev) => ({

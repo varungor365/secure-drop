@@ -408,8 +408,8 @@ const LandingPage: React.FC = () => {
                       return (
                         <button key={p.id} onClick={() => setSelectedPeers(prev => prev.some(x => x.id === p.id) ? prev.filter(x => x.id !== p.id) : [...prev, p])}
                           className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${isSelected ? "bg-primary/10 border-primary ring-1 ring-primary/30" : "bg-card border-border hover:border-primary/40 hover:bg-muted/30"}`}>
-                          <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${colorFor(p.label)} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
-                            {initials(p.label)}
+                          <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${colorFor(p.label)} flex items-center justify-center text-white overflow-hidden shrink-0`}>
+                            <img src={`https://robohash.org/${encodeURIComponent(p.label)}?set=set1&size=100x100`} alt={p.label} className="h-full w-full object-cover bg-black/10" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm truncate">{p.label}</p>

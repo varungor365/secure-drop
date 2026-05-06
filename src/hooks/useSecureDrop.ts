@@ -387,7 +387,6 @@ export function useSecureDrop() {
         break;
       }
     }
-    }
   };
 
   // Update ref every render — keeps the signaling listener current.

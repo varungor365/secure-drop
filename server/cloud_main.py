@@ -74,7 +74,15 @@ async def _relay(target_id: str, payload: dict) -> None:
 async def handler(ws: WebSocketServerProtocol) -> None:
     peer_id = str(uuid.uuid4())[:8]
     label   = "Unknown"
-    logger.info(f"[ws] connect {peer_id}")
+    
+    # Extract real client IP (Render uses X-Forwarded-For)
+    forwarded = ws.request_headers.get("X-Forwarded-For", "")
+    if forwarded:
+        client_ip = forwarded.split(",")[0].strip()
+    else:
+        client_ip = ws.remote_address[0] if ws.remote_address else "unknown"
+
+    logger.info(f"[ws] connect {peer_id} from {client_ip}")
 
     try:
         async for raw in ws:
@@ -90,7 +98,7 @@ async def handler(ws: WebSocketServerProtocol) -> None:
                 label = msg.get("label", f"Peer-{peer_id}")
                 device_hint = msg.get("deviceHint", "")
                 peers[peer_id] = {
-                    "ws": ws, "label": label,
+                    "ws": ws, "label": label, "ip": client_ip,
                     "deviceHint": device_hint, "lastSeen": asyncio.get_event_loop().time()
                 }
 
@@ -101,20 +109,23 @@ async def handler(ws: WebSocketServerProtocol) -> None:
                     "serverLanIp": get_lan_ip(),
                 })
 
-                # Send existing peer list
+                # Send existing peer list (ONLY peers on the SAME IP)
                 peer_list = [
                     {"id": pid, "label": p["label"], "deviceHint": p["deviceHint"],
                      "connected": True, "lastSeen": int(p["lastSeen"] * 1000)}
-                    for pid, p in peers.items() if pid != peer_id
+                    for pid, p in peers.items() if pid != peer_id and p["ip"] == client_ip
                 ]
                 await _send(ws, {"type": "peer-list", "peers": peer_list})
 
-                # Notify others
-                await _broadcast(peer_id, {
-                    "type": "peer-joined",
-                    "peer": {"id": peer_id, "label": label, "deviceHint": device_hint,
-                             "connected": True, "lastSeen": int(asyncio.get_event_loop().time() * 1000)},
-                })
+                # Notify others on the SAME IP
+                same_ip_peers = [pid for pid, p in peers.items() if p["ip"] == client_ip]
+                for pid in same_ip_peers:
+                    if pid == peer_id: continue
+                    await _send(peers[pid]["ws"], {
+                        "type": "peer-joined",
+                        "peer": {"id": peer_id, "label": label, "deviceHint": device_hint,
+                                 "connected": True, "lastSeen": int(asyncio.get_event_loop().time() * 1000)},
+                    })
 
             # ── Relay messages ──────────────────────────────────────────
             elif mtype in ("offer", "answer", "ice", "transfer-request",
@@ -122,7 +133,7 @@ async def handler(ws: WebSocketServerProtocol) -> None:
                            "transfer-resume-request", "transfer-resume-accepted",
                            "ecdh-pubkey"):
                 to_id = msg.get("toPeerId")
-                if to_id:
+                if to_id and to_id in peers and peers[to_id]["ip"] == client_ip:
                     await _relay(to_id, {**msg, "fromPeerId": peer_id})
 
             # ── Ping / keepalive ────────────────────────────────────────

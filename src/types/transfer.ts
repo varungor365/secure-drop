@@ -39,7 +39,9 @@ export type SignalingMessage =
   | { type: "transfer-accepted"; fromPeerId: string }
   | { type: "transfer-rejected"; fromPeerId: string }
   | { type: "transfer-resume-request"; fromPeerId: string; transferId: string }
-  | { type: "transfer-resume-accepted"; fromPeerId: string; chunksReceived: number[] };
+  | { type: "transfer-resume-accepted"; fromPeerId: string; chunksReceived: number[] }
+  | { type: "ecdh-pubkey"; fromPeerId: string; publicKeyJwk: JsonWebKey }
+  | { type: "receiver-ready"; fromPeerId: string };
 
 // ─── Cryptographic Keys ───────────────────────────────────────────────────────
 

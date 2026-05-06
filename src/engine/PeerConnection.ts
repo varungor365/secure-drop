@@ -172,10 +172,31 @@ export class PeerConnection {
   private _attachDcHandlers(dc: RTCDataChannel): void {
     dc.binaryType = "arraybuffer";
     // Crucial for ultra-high speed: Fire backpressure event while we still have 256KB 
-    // in flight so we can refill the pipeline before the network starves!
-    dc.bufferedAmountLowThreshold = 262_144; 
+    // Set the threshold for 'bufferedamountlow' event. 64KB is safer for 
+    // mobile devices than matching the chunk size exactly.
+    dc.bufferedAmountLowThreshold = 65_536; 
 
-    // If the DataChannel is already open by the time we attach handlers
+    let isProcessing = false;
+    const msgQueue: (Blob | ArrayBuffer)[] = [];
+
+    const processQueue = async () => {
+      if (isProcessing || msgQueue.length === 0) return;
+      isProcessing = true;
+      while (msgQueue.length > 0) {
+        const data = msgQueue.shift()!;
+        try {
+          if (data instanceof ArrayBuffer) {
+            this.dataHandlers.forEach((h) => h(data));
+          } else if (data instanceof Blob) {
+            const buf = await data.arrayBuffer();
+            this.dataHandlers.forEach((h) => h(buf));
+          }
+        } catch (err) {
+          console.error("[PeerConnection] Error processing message:", err);
+        }
+      }
+      isProcessing = false;
+    };
     // (can happen on the receiver side), fire the open event manually.
     if (dc.readyState === "open") {
       this.stateHandlers.forEach((h) => h("open"));
@@ -196,21 +217,18 @@ export class PeerConnection {
     };
 
     dc.onmessage = ({ data }) => {
-      // ── Safari iOS WebKit Bug Fix ─────────────────────────────────────────
-      // Despite setting binaryType = "arraybuffer", Safari iOS delivers
-      // DataChannel binary messages as Blob objects. The old `instanceof
-      // ArrayBuffer` check silently dropped ALL chunks on iPhone (0% forever).
-      // We normalise both cases here.
-      if (data instanceof ArrayBuffer) {
-        this.dataHandlers.forEach((h) => h(data));
-      } else if (data instanceof Blob) {
-        // Async conversion — Blob.arrayBuffer() is supported in all modern browsers
-        data.arrayBuffer().then((buf) => {
-          this.dataHandlers.forEach((h) => h(buf));
-        }).catch((err) => {
-          console.error("[PeerConnection] Blob→ArrayBuffer conversion failed", err);
-        });
-      }
+      if (data === "ping") return;
+      msgQueue.push(data);
+      processQueue();
     };
+
+    // Keep-alive heartbeat (prevents some mobile carriers from dropping idle UDP/TCP sessions)
+    const heartbeat = setInterval(() => {
+      if (dc.readyState === "open") {
+        try { dc.send("ping"); } catch(e) {}
+      } else {
+        clearInterval(heartbeat);
+      }
+    }, 5000);
   }
 }

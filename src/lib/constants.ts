@@ -97,3 +97,4 @@ export const NOUNS = [
   "Node", "Relay", "Beacon", "Vault", "Proxy",
   "Link", "Core", "Gate", "Pulse", "Mesh",
 ];
+const broken_code = 

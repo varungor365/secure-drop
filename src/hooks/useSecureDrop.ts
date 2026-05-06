@@ -273,11 +273,20 @@ export function useSecureDrop() {
         break;
 
       case "ecdh-pubkey": {
-        const derivedKey = await deriveSessionKey(
+        const theirKey = await importPeerPublicKey(msg.publicKeyJwk as JsonWebKey);
+        const remoteId = msg.fromPeerId;
+        const localId = localPeerIdRef.current ?? "";
+        const canonicalId = [localId, remoteId].sort().join("|");
+        const sessionKey = await deriveSharedSessionKey(
           keyPairRef.current!.privateKey,
-          msg.publicKeyJwk,
+          theirKey,
+          canonicalId,
         );
-        sessionKeysRef.current.set(msg.fromPeerId, derivedKey);
+        sessionKeysRef.current.set(remoteId, sessionKey);
+        setState((prev) => ({
+          ...prev,
+          sessionFingerprints: { ...prev.sessionFingerprints, [remoteId]: sessionKey.fingerprint },
+        }));
         break;
       }
 
@@ -378,24 +387,6 @@ export function useSecureDrop() {
         break;
       }
     }
-
-    // ecdh-pubkey is not in the union — handle as raw
-    const raw = msg as Record<string, unknown>;
-    if (raw.type === "ecdh-pubkey" && raw.fromPeerId && raw.publicKeyJwk) {
-      const theirKey = await importPeerPublicKey(raw.publicKeyJwk as JsonWebKey);
-      const remoteId = raw.fromPeerId as string;
-      const localId = localPeerIdRef.current ?? "";
-      const canonicalId = [localId, remoteId].sort().join("|");
-      const sessionKey = await deriveSharedSessionKey(
-        keyPairRef.current!.privateKey,
-        theirKey,
-        canonicalId,
-      );
-      sessionKeysRef.current.set(remoteId, sessionKey);
-      setState((prev) => ({
-        ...prev,
-        sessionFingerprints: { ...prev.sessionFingerprints, [remoteId]: sessionKey.fingerprint },
-      }));
     }
   };
 

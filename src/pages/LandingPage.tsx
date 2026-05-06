@@ -10,6 +10,7 @@ import { TelemetryWidget } from "@/components/TelemetryWidget";
 import { resolveSignalingUrl } from "@/lib/constants";
 import { playSend, playReceive } from "@/lib/sounds";
 import { zipDroppedFolder, zipMultipleFiles } from "@/lib/zip";
+import { toast } from "sonner";
 import type { Peer, TransferSession } from "@/types/transfer";
 
 /* ─── Helpers ─────────────────────────────────────────────────────── */
@@ -157,6 +158,25 @@ const LandingPage: React.FC = () => {
     if (f) setPendingFile(f);
   }, []);
 
+  const handleClipboardSync = async () => {
+    if (selectedPeers.length === 0) {
+      toast.error("Please select a device first");
+      return;
+    }
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) {
+        toast.error("Clipboard is empty or contains non-text data.");
+        return;
+      }
+      const file = new File([new Blob([text], { type: "text/plain" })], `clipboard-${Date.now()}.txt`, { type: "text/plain" });
+      selectedPeers.forEach(peer => sendFileRequest(peer.id, file));
+      toast.success("Sent clipboard text!");
+    } catch (e) {
+      toast.error("Failed to read clipboard. Check permissions.");
+    }
+  };
+
   const handleSend = async () => {
     if (!pendingFile || selectedPeers.length === 0) return;
     playSend();
@@ -300,6 +320,15 @@ const LandingPage: React.FC = () => {
                 </button>
               </div>
             )}
+            <div className="mx-4 mb-4 flex justify-between items-center gap-2">
+               <button 
+                 onClick={handleClipboardSync}
+                 disabled={selectedPeers.length === 0}
+                 className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground text-sm font-semibold rounded-lg disabled:opacity-40 hover:bg-secondary/80 flex justify-center items-center gap-2 transition-all border border-secondary"
+               >
+                 📋 Sync Clipboard to Selected Device
+               </button>
+            </div>
           </div>
 
           {/* Active Transfers */}

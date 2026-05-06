@@ -82,10 +82,20 @@ export const RECONNECT_BACKOFF_FACTOR = 2;
 /** Interval at which the UI polls for speed/ETA recalculation (ms). */
 export const SPEED_SAMPLE_INTERVAL_MS = 1_000;
 
-/** STUN servers used for WebRTC ICE negotiation (LAN-only STUN). */
+/** STUN/TURN servers used for WebRTC ICE negotiation (allows Cellular routing). */
 export const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
+  {
+    urls: "turn:openrelay.metered.ca:80",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
+  {
+    urls: "turn:openrelay.metered.ca:443",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
 ];
 
 /** Label auto-generation wordlists. */

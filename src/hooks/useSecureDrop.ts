@@ -57,9 +57,33 @@ function getDeviceHint(): string {
   const os = ua.includes("Mac") ? "macOS"
     : ua.includes("Win") ? "Windows"
       : ua.includes("Android") ? "Android"
-        : ua.includes("Linux") ? "Linux"
+        : "Linux" ? "Linux"
           : "Unknown OS";
   return `${browser} / ${os}`;
+}
+
+function playSuccessFeedback() {
+  if (typeof window !== "undefined" && navigator.vibrate) {
+    navigator.vibrate([100, 50, 100]);
+  }
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+    osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.2); // C6
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch (e) { /* ignore */ }
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────
@@ -548,6 +572,7 @@ export function useSecureDrop() {
           integrityVerified: result.status === "verified",
         });
 
+        playSuccessFeedback();
         triggerDownload(fileBuffer, meta.name, meta.mimeType);
       } catch (err) {
         console.error("[useSecureDrop] Receive transfer error:", err);
@@ -608,6 +633,7 @@ const _beginSendTransfer = useCallback(
         completedAt: Date.now(),
         integrityVerified: true,
       });
+      playSuccessFeedback();
     } catch (err: any) {
       abortControllersRef.current.delete(transferId);
       if (err?.name === "AbortError") {

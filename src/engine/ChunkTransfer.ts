@@ -28,7 +28,7 @@ import type { PeerConnection } from "./PeerConnection";
 import type { FileMetadata } from "@/types/transfer";
 
 /** Milliseconds of silence before a receive-side transfer is considered dead. */
-const RECEIVE_IDLE_TIMEOUT_MS = 60_000;
+const RECEIVE_IDLE_TIMEOUT_MS = 120_000;
 
 export type ProgressCallback = (chunksTransferred: number, totalChunks: number) => void;
 
@@ -155,14 +155,17 @@ export function receiveEncryptedFile(
   onProgress?: ProgressCallback,
 ): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
-    let receivedCount = 0;
+    // Use a Set to track unique received indices — prevents duplicate frames from
+    // triggering premature assembly or overcounting progress.
+    const receivedSet = new Set<number>();
     let cleanup: (() => void) | null = null;
     const inMemoryChunks: (ArrayBuffer | null)[] = Array(meta.totalChunks).fill(null);
     let idbQueue = Promise.resolve();
-    
-    // Check initial received count in case this is a resumed transfer
+    let isFinishing = false;
+
+    // Pre-seed the set with already-received chunks (for resumed transfers).
     getReceivedChunkIndices(transferId).then(existing => {
-      receivedCount = existing.size;
+      existing.forEach(idx => receivedSet.add(idx));
     }).catch(console.error);
 
     // Inactivity watchdog — rejects if no chunk arrives within the timeout.
@@ -182,23 +185,28 @@ export function receiveEncryptedFile(
       resetIdleTimer(); // reset watchdog on every incoming chunk
       try {
         const { chunkIndex, totalChunks, iv, ciphertext } = decodeFrame(frame);
+
+        // Deduplicate — skip if we already have this chunk index.
+        if (receivedSet.has(chunkIndex)) return;
+
         const plaintext = await decryptChunk(aesKey, iv, ciphertext);
-        
+
+        receivedSet.add(chunkIndex);
         inMemoryChunks[chunkIndex] = plaintext;
-        
+
         // Push IDB write to a sequential background queue to avoid transaction flooding
         idbQueue = idbQueue.then(() => saveChunk(transferId, chunkIndex, plaintext).catch(console.error));
-        
-        receivedCount++;
-        onProgress?.(receivedCount, totalChunks);
 
-        if (receivedCount >= meta.totalChunks) {
+        onProgress?.(receivedSet.size, totalChunks);
+
+        if (receivedSet.size >= meta.totalChunks && !isFinishing) {
+          isFinishing = true;
           clearTimeout(idleTimer);
           cleanup?.();
-          
+
           // Ensure all trailing chunks are safely flushed to DB before finishing
           await idbQueue;
-          
+
           // If no chunks are missing from memory, assemble instantly (bypassing IDB reads)
           if (!inMemoryChunks.includes(null)) {
             resolve(assembleChunks(inMemoryChunks as ArrayBuffer[]));

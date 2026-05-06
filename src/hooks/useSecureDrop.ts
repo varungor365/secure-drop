@@ -518,19 +518,35 @@ export function useSecureDrop() {
       saveTransfer(transferIn).catch(console.error);
 
       // Wait for session key to be derived (may take a moment after ECDH).
+      // Times out after 20 s — prevents silent infinite hang if ECDH message is dropped.
       const waitForKey = () =>
-        new Promise<DerivedSessionKey>((resolve) => {
+        new Promise<DerivedSessionKey>((resolve, reject) => {
+          const deadline = Date.now() + 20_000;
           const check = () => {
             const key = sessionKeysRef.current.get(fromPeer.id);
             if (key) return resolve(key);
+            if (Date.now() > deadline) return reject(new Error("[useSecureDrop] ECDH key never arrived — transfer failed"));
+            setTimeout(check, 100);
+          };
+          check();
+        });
+
+      // Wait for the WebRTC connection (offer may still be in-flight when user taps Accept).
+      const waitForConn = () =>
+        new Promise<import("@/engine/PeerConnection").PeerConnection>((resolve, reject) => {
+          const deadline = Date.now() + 20_000;
+          const check = () => {
+            const c = connectionsRef.current.get(fromPeer.id);
+            if (c) return resolve(c);
+            if (Date.now() > deadline) return reject(new Error("[useSecureDrop] WebRTC connection never established"));
             setTimeout(check, 100);
           };
           check();
         });
 
       try {
-        const sessionKey = await waitForKey();
-        const conn = connectionsRef.current.get(fromPeer.id)!;
+        // Resolve both the session key AND the connection (either may arrive first).
+        const [sessionKey, conn] = await Promise.all([waitForKey(), waitForConn()]);
 
         patchTransfer(transferId, { state: "transferring" });
 
@@ -589,10 +605,12 @@ const _beginSendTransfer = useCallback(
     const { file, transferId } = pending;
 
     const waitForKey = () =>
-      new Promise<DerivedSessionKey>((resolve) => {
+      new Promise<DerivedSessionKey>((resolve, reject) => {
+        const deadline = Date.now() + 20_000;
         const check = () => {
           const key = sessionKeysRef.current.get(fromPeerId);
           if (key) return resolve(key);
+          if (Date.now() > deadline) return reject(new Error("[useSecureDrop] Sender ECDH key never arrived"));
           setTimeout(check, 100);
         };
         check();
@@ -600,6 +618,12 @@ const _beginSendTransfer = useCallback(
 
     try {
       const sessionKey = await waitForKey();
+
+      // ── CRITICAL: Give the receiver 2 seconds to register its onData handler ──
+      // Without this pause, the Mac blasts chunks before the phone has called
+      // receiveEncryptedFile(). Those early chunks are silently dropped by the
+      // DataChannel because no handler is registered yet, causing transfer failure.
+      await new Promise(r => setTimeout(r, 2000));
       patchTransfer(transferId, { state: "encrypting" });
 
       const abortController = new AbortController();

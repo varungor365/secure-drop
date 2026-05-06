@@ -168,7 +168,9 @@ export class PeerConnection {
 
   private _attachDcHandlers(dc: RTCDataChannel): void {
     dc.binaryType = "arraybuffer";
-    dc.bufferedAmountLowThreshold = DC_BUFFER_THRESHOLD / 4; // fire drain early to keep pipe full
+    // Crucial for ultra-high speed: Fire backpressure event while we still have 4MB 
+    // in flight so we can refill the pipeline before the network starves!
+    dc.bufferedAmountLowThreshold = 4_194_304; 
 
     dc.onopen = () => {
       this.stateHandlers.forEach((h) => h(dc.readyState));

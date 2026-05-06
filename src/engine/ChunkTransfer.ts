@@ -73,7 +73,7 @@ function decodeFrame(frame: ArrayBuffer): {
 // ── Sender ────────────────────────────────────────────────────────────────
 
 /** How many chunks to pre-read + pre-encrypt ahead of the send cursor. */
-const PIPELINE_DEPTH = 16;
+const PIPELINE_DEPTH = 32;
 
 /**
  * Stream-encrypt and send a file over an established DataChannel.

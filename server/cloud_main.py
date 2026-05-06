@@ -120,7 +120,7 @@ async def handler(ws: WebSocketServerProtocol) -> None:
             elif mtype in ("offer", "answer", "ice", "transfer-request",
                            "transfer-accepted", "transfer-rejected",
                            "transfer-resume-request", "transfer-resume-accepted",
-                           "ecdh-pubkey"):
+                           "ecdh-pubkey", "receiver-ready"):
                 to_id = msg.get("toPeerId")
                 if to_id:
                     await _relay(to_id, {**msg, "fromPeerId": peer_id})

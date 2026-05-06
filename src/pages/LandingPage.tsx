@@ -74,7 +74,7 @@ const TransferRow = ({ t, onView, onResume }: { t: TransferSession; onView: () =
 
 /* ─── Main Page ─────────────────────────────────────────────────────── */
 const LandingPage: React.FC = () => {
-  const { state, sendFileRequest, acceptTransfer, rejectTransfer, updateLocalLabel, resumeTransfer, cancelTransfer } = useSecureDrop();
+  const { state, sendFileRequest, acceptTransfer, rejectTransfer, updateLocalLabel, resumeTransfer, cancelTransfer, clearHistory } = useSecureDrop();
   const { isDark, toggle: toggleTheme } = useTheme();
 
   const [selectedPeers, setSelectedPeers] = useState<Peer[]>([]);
@@ -348,7 +348,15 @@ const LandingPage: React.FC = () => {
           {/* History */}
           {done.length > 0 && (
             <div className="bg-card border border-border rounded-2xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-border"><h2 className="font-semibold text-base">History</h2></div>
+              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                <h2 className="font-semibold text-base">History</h2>
+                <button 
+                  onClick={clearHistory}
+                  className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md border border-border bg-muted/30"
+                >
+                  🗑️ Clear All
+                </button>
+              </div>
               <div className="divide-y divide-border">
                 {done.slice().reverse().map(t => (
                   <div key={t.id} className="border-b border-border/50 last:border-0">
@@ -409,7 +417,12 @@ const LandingPage: React.FC = () => {
                         <button key={p.id} onClick={() => setSelectedPeers(prev => prev.some(x => x.id === p.id) ? prev.filter(x => x.id !== p.id) : [...prev, p])}
                           className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${isSelected ? "bg-primary/10 border-primary ring-1 ring-primary/30" : "bg-card border-border hover:border-primary/40 hover:bg-muted/30"}`}>
                           <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${colorFor(p.label)} flex items-center justify-center text-white overflow-hidden shrink-0`}>
-                            <img src={`https://robohash.org/${encodeURIComponent(p.label)}?set=set1&size=100x100`} alt={p.label} className="h-full w-full object-cover bg-black/10" />
+                            <img 
+                              src={`https://robohash.org/${encodeURIComponent(p.label)}?set=set1&size=100x100`} 
+                              alt={p.label} 
+                              className="h-full w-full object-cover bg-black/10" 
+                              crossOrigin="anonymous"
+                            />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm truncate">{p.label}</p>

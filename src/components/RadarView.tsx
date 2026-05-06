@@ -111,7 +111,12 @@ export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPee
       {/* Center Node (Local User) */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10 pointer-events-none">
         <div className="h-14 w-14 rounded-full bg-indigo-500 shadow-lg border-2 border-background flex items-center justify-center overflow-hidden relative">
-          <img src={`https://robohash.org/${encodeURIComponent(localLabel)}?set=set1&size=120x120`} alt="You" className="h-full w-full object-cover bg-indigo-100" />
+          <img 
+            src={`https://robohash.org/${encodeURIComponent(localLabel)}?set=set1&size=120x120`} 
+            alt="You" 
+            className="h-full w-full object-cover bg-indigo-100" 
+            crossOrigin="anonymous"
+          />
         </div>
         <p className="mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-background/80 backdrop-blur border shadow-sm">
           You
@@ -143,7 +148,12 @@ export const RadarView: React.FC<RadarProps> = ({ peers, localLabel, selectedPee
               className={`h-12 w-12 rounded-full shadow-lg border-2 flex items-center justify-center relative overflow-hidden transition-all duration-300 ${isSelected ? "ring-4 ring-offset-2 ring-primary/40" : ""}`}
               style={{ borderColor: color, backgroundColor: `${color}20` }}
             >
-              <img src={`https://robohash.org/${encodeURIComponent(peer.label)}?set=set1&size=120x120`} alt={peer.label} className="h-full w-full object-cover drop-shadow-md" />
+              <img 
+                src={`https://robohash.org/${encodeURIComponent(peer.label)}?set=set1&size=120x120`} 
+                alt={peer.label} 
+                className="h-full w-full object-cover drop-shadow-md" 
+                crossOrigin="anonymous"
+              />
               
               {/* Online Indicator */}
               <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${peer.connected ? "bg-emerald-500" : "bg-amber-500"}`} />

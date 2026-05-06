@@ -172,6 +172,12 @@ export class PeerConnection {
     // in flight so we can refill the pipeline before the network starves!
     dc.bufferedAmountLowThreshold = 262_144; 
 
+    // If the DataChannel is already open by the time we attach handlers
+    // (can happen on the receiver side), fire the open event manually.
+    if (dc.readyState === "open") {
+      this.stateHandlers.forEach((h) => h("open"));
+    }
+
     dc.onopen = () => {
       this.stateHandlers.forEach((h) => h(dc.readyState));
     };
@@ -187,8 +193,20 @@ export class PeerConnection {
     };
 
     dc.onmessage = ({ data }) => {
+      // ── Safari iOS WebKit Bug Fix ─────────────────────────────────────────
+      // Despite setting binaryType = "arraybuffer", Safari iOS delivers
+      // DataChannel binary messages as Blob objects. The old `instanceof
+      // ArrayBuffer` check silently dropped ALL chunks on iPhone (0% forever).
+      // We normalise both cases here.
       if (data instanceof ArrayBuffer) {
         this.dataHandlers.forEach((h) => h(data));
+      } else if (data instanceof Blob) {
+        // Async conversion — Blob.arrayBuffer() is supported in all modern browsers
+        data.arrayBuffer().then((buf) => {
+          this.dataHandlers.forEach((h) => h(buf));
+        }).catch((err) => {
+          console.error("[PeerConnection] Blob→ArrayBuffer conversion failed", err);
+        });
       }
     };
   }

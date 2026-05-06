@@ -27,7 +27,7 @@ import {
   triggerDownload,
 } from "@/engine/ChunkTransfer";
 import { verifyTransferIntegrity } from "@/engine/IntegrityVerifier";
-import { getReceivedChunkIndices, getAllTransfers, saveTransfer } from "@/lib/db";
+import { getReceivedChunkIndices, getAllTransfers, saveTransfer, clearAllHistory } from "@/lib/db";
 import { ADJECTIVES, NOUNS, resolveSignalingUrl, CHUNK_SIZE_BYTES } from "@/lib/constants";
 import type {
   Peer,
@@ -116,6 +116,9 @@ export function useSecureDrop() {
 
   // AbortControllers for active send transfers: transferId → AbortController
   const abortControllersRef = useRef<Map<string, AbortController>>(new Map());
+
+  // Receiver-ready resolvers: peerId → resolve() called when phone sends receiver-ready signal
+  const receiverReadyResolversRef = useRef<Map<string, () => void>>(new Map());
 
   // ── React State ────────────────────────────────────────────────────────
 
@@ -386,6 +389,15 @@ export function useSecureDrop() {
         }
         break;
       }
+      case "receiver-ready": {
+        // Phone signals Mac that it has registered its onData handler and is ready to receive.
+        const resolve = receiverReadyResolversRef.current.get(msg.fromPeerId);
+        if (resolve) {
+          resolve();
+          receiverReadyResolversRef.current.delete(msg.fromPeerId);
+        }
+        break;
+      }
     }
   };
 
@@ -555,7 +567,14 @@ export function useSecureDrop() {
           transferId,
           sessionKey.aesKey,
           meta,
-          (handler) => conn.onData(handler),
+          (handler) => {
+            const cleanup = conn.onData(handler);
+            // ── Signal the sender that we are ready to receive ──────────────
+            // This replaces the blind fixed delay on the sender side. The Mac will
+            // not start pumping chunks until it receives this signal (or times out).
+            signalingRef.current!.send({ type: "receiver-ready", toPeerId: fromPeer.id });
+            return cleanup;
+          },
           (received, total) => {
             const elapsed = (Date.now() - startTime) / 1000;
             const bytesReceived = received * CHUNK_SIZE_BYTES;
@@ -619,11 +638,18 @@ const _beginSendTransfer = useCallback(
     try {
       const sessionKey = await waitForKey();
 
-      // ── CRITICAL: Give the receiver 2 seconds to register its onData handler ──
-      // Without this pause, the Mac blasts chunks before the phone has called
-      // receiveEncryptedFile(). Those early chunks are silently dropped by the
-      // DataChannel because no handler is registered yet, causing transfer failure.
-      await new Promise(r => setTimeout(r, 2000));
+      // ── Wait for receiver-ready signal (or fallback after 8s) ──────────
+      // The phone sends 'receiver-ready' after registering its onData handler.
+      // This is far more reliable than a fixed delay — it's an explicit handshake.
+      await new Promise<void>((resolve) => {
+        // Store resolver so the signaling handler can call it.
+        receiverReadyResolversRef.current.set(fromPeerId, resolve);
+        // Safety fallback: if signal is dropped, start anyway after 8s.
+        setTimeout(() => {
+          receiverReadyResolversRef.current.delete(fromPeerId);
+          resolve();
+        }, 8_000);
+      });
       patchTransfer(transferId, { state: "encrypting" });
 
       const abortController = new AbortController();
@@ -720,13 +746,19 @@ const cancelTransfer = useCallback((transferId: string) => {
   patchTransfer(transferId, { state: "failed" });
 }, [state.transfers, patchTransfer]);
 
+const clearHistory = useCallback(async () => {
+  await clearAllHistory();
+  patchState({ transfers: [] });
+}, [patchState]);
+
 return {
   state,
+  updateLocalLabel,
   sendFileRequest,
   acceptTransfer,
   rejectTransfer,
-  updateLocalLabel,
   resumeTransfer,
   cancelTransfer,
+  clearHistory,
 };
 }

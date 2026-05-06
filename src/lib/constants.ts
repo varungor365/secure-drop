@@ -53,9 +53,9 @@ export const CHUNK_SIZE_BYTES = 262_144; // 256 KB — maximizes DataChannel thr
 /**
  * Maximum number of WebRTC DataChannel bytes allowed to queue
  * before the sender pauses and waits for drain.
- * 1 MB buffer prevents quota exceeded errors on strict browsers like Safari iOS.
+ * 256 KB is more stable for high-latency mobile networks than 1MB.
  */
-export const DC_BUFFER_THRESHOLD = 1_048_576; // 1 MB
+export const DC_BUFFER_THRESHOLD = 262_144; // 256 KB (matched to chunk size)
 
 /** AES-256-GCM IV length in bytes (NIST SP 800-38D §8.2). */
 export const GCM_IV_LENGTH = 12;
@@ -89,6 +89,7 @@ export const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun2.l.google.com:19302" },
   { urls: "stun:stun3.l.google.com:19302" },
   { urls: "stun:stun4.l.google.com:19302" },
+  { urls: "stun:stun.cloudflare.com:3478" },
   {
     urls: [
       "turn:openrelay.metered.ca:80",

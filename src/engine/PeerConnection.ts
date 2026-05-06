@@ -151,17 +151,20 @@ export class PeerConnection {
     // Forward ICE candidates to the remote peer via signaling.
     this.pc.onicecandidate = ({ candidate }) => {
       if (candidate) {
+        console.log(`[PeerConnection] New ICE candidate for ${this.remotePeerId}:`, candidate.type);
         this.signaling.sendIce(this.remotePeerId, candidate.toJSON());
       }
     };
 
     // The non-initiator receives the DataChannel that the initiator created.
     this.pc.ondatachannel = ({ channel }) => {
+      console.log(`[PeerConnection] DataChannel received from ${this.remotePeerId}`);
       this.dc = channel;
       this._attachDcHandlers(channel);
     };
 
     this.pc.onconnectionstatechange = () => {
+      console.log(`[PeerConnection] State change with ${this.remotePeerId}:`, this.pc.connectionState);
       this.stateHandlers.forEach((h) => h(this.pc.connectionState));
     };
   }

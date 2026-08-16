@@ -39,14 +39,20 @@ def parse_args() -> argparse.Namespace:
         description="Secure-Drop Signaling & Discovery Server",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--host", default="0.0.0.0", help="Bind address for WebSocket server")
+    parser.add_argument("--host", default="127.0.0.1", help="Bind address for WebSocket server")
     parser.add_argument("--port", type=int, default=8765, help="WebSocket server port")
+    parser.add_argument(
+        "--origin",
+        action="append",
+        dest="origins",
+        help="Allowed browser origin; repeat for multiple origins (default: localhost origins)",
+    )
     return parser.parse_args()
 
 
 # ── Main Async Entry Point ────────────────────────────────────────────────────
 
-async def main(host: str, port: int) -> None:
+async def main(host: str, port: int, origins: list[str] | None = None) -> None:
     """Start mDNS discovery and WebSocket signaling server concurrently."""
 
     logger.info("=" * 60)
@@ -78,7 +84,7 @@ async def main(host: str, port: int) -> None:
         await discovery.start()
         try:
             signaling_task = asyncio.create_task(
-                start_signaling_server(host, port),
+                start_signaling_server(host, port, origins=origins),
                 name="signaling-server",
             )
             shutdown_task = asyncio.create_task(
@@ -106,6 +112,6 @@ async def main(host: str, port: int) -> None:
 if __name__ == "__main__":
     args = parse_args()
     try:
-        asyncio.run(main(args.host, args.port))
+        asyncio.run(main(args.host, args.port, args.origins))
     except KeyboardInterrupt:
         pass

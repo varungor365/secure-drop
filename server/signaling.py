@@ -30,6 +30,60 @@ from session import SessionRegistry
 
 logger = logging.getLogger(__name__)
 
+MAX_MESSAGE_BYTES = int(os.getenv("WS_MAX_MESSAGE_BYTES", "1048576"))
+MAX_TEXT_FIELD = 4096
+
+
+def _validate_message(msg_type: str, data: dict[str, Any]) -> str | None:
+    """Return a validation error for a client message, or None when valid."""
+    if not isinstance(msg_type, str) or len(msg_type) > 64:
+        return "invalid message type"
+
+    if msg_type == "register":
+        for field, limit in (("label", 64), ("deviceHint", 128)):
+            value = data.get(field)
+            if value is not None and (not isinstance(value, str) or len(value) > limit):
+                return f"invalid {field}"
+        return None
+
+    target_messages = {
+        "offer", "answer", "ice", "ecdh-pubkey", "transfer-request",
+        "transfer-accepted", "transfer-rejected", "transfer-resume-request",
+        "transfer-resume-accepted",
+    }
+    if msg_type in target_messages:
+        target = data.get("toPeerId")
+        if not isinstance(target, str) or not target or len(target) > 128:
+            return "invalid toPeerId"
+
+    if msg_type in {"offer", "answer"}:
+        sdp = data.get("sdp")
+        if not isinstance(sdp, str) or len(sdp) > MAX_MESSAGE_BYTES:
+            return "invalid sdp"
+    elif msg_type == "ice":
+        if len(json.dumps(data.get("candidate"), separators=(",", ":"))) > MAX_MESSAGE_BYTES:
+            return "candidate is too large"
+    elif msg_type == "ecdh-pubkey":
+        if len(json.dumps(data.get("publicKeyJwk"), separators=(",", ":"))) > MAX_MESSAGE_BYTES:
+            return "public key is too large"
+    elif msg_type == "transfer-request":
+        if len(json.dumps(data.get("meta"), separators=(",", ":"))) > MAX_MESSAGE_BYTES:
+            return "transfer metadata is too large"
+    elif msg_type == "transfer-resume-request":
+        transfer_id = data.get("transferId")
+        if not isinstance(transfer_id, str) or not transfer_id or len(transfer_id) > 256:
+            return "invalid transferId"
+    elif msg_type == "transfer-resume-accepted":
+        chunks = data.get("chunksReceived")
+        if not isinstance(chunks, int) or isinstance(chunks, bool) or chunks < 0:
+            return "invalid chunksReceived"
+    elif msg_type == "update-label":
+        label = data.get("label")
+        if not isinstance(label, str) or not label or len(label) > MAX_TEXT_FIELD:
+            return "invalid label"
+
+    return None
+
 # Global peer registry — shared across all WebSocket handler coroutines.
 registry = SessionRegistry()
 
@@ -238,13 +292,25 @@ async def peer_handler(ws: WebSocketServerProtocol) -> None:
 
     try:
         async for raw in ws:
+            if len(raw.encode("utf-8")) > MAX_MESSAGE_BYTES:
+                await ws.close(code=1009, reason="message too large")
+                return
+
             try:
-                data: dict[str, Any] = json.loads(raw)
+                data = json.loads(raw)
             except json.JSONDecodeError:
                 logger.warning("[Signaling] Received non-JSON message — ignoring")
                 continue
 
+            if not isinstance(data, dict):
+                logger.warning("[Signaling] Received a non-object JSON message — ignoring")
+                continue
+
             msg_type: str = data.get("type", "")
+            validation_error = _validate_message(msg_type, data)
+            if validation_error:
+                await _send_json(ws, {"type": "error", "message": validation_error})
+                continue
 
             # ── First message must register the peer ──
             if peer_id is None:
@@ -273,9 +339,19 @@ async def peer_handler(ws: WebSocketServerProtocol) -> None:
             logger.info(f"[Signaling] Peer disconnected: {peer_id} — {len(registry)} remaining")
 
 
-async def start_signaling_server(host: str = "0.0.0.0", port: int = 8765) -> None:
-    """Start the WebSocket signaling server and run indefinitely."""
+async def start_signaling_server(
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    origins: list[str] | None = None,
+) -> None:
+    """Start the WebSocket signaling server and run indefinitely.
+
+    By default, only local browser origins are accepted. LAN deployments should
+    pass their explicit web origin rather than disabling origin validation.
+    """
+    allowed_origins = origins or ["http://localhost", "http://127.0.0.1"]
     logger.info(f"[Signaling] Server starting on ws://{host}:{port}")
-    async with websockets.serve(peer_handler, host, port):
+    logger.info("[Signaling] Allowed origins: %s", ", ".join(allowed_origins))
+    async with websockets.serve(peer_handler, host, port, origins=allowed_origins, max_size=MAX_MESSAGE_BYTES):
         logger.info(f"[Signaling] Server ready — accepting connections")
         await asyncio.Future()  # run forever

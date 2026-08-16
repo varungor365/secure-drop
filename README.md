@@ -214,6 +214,12 @@ secure-drop/
 
 ---
 
+## Deployment and security notes
+
+The signaling server binds to `127.0.0.1` by default and accepts localhost browser origins. LAN or internet deployments must explicitly choose a bind address and pass each trusted web origin with `--origin`; do not disable origin validation as a convenience.
+
+The signaling layer relays connection metadata and encrypted-session setup messages. It does not authenticate users, prevent malicious peers from connecting, or guarantee that a peer is honest. Verify the displayed session fingerprint out of band when the threat model requires protection against an active man-in-the-middle. Use TLS (`wss://`) for internet deployments, apply network access controls, and keep the server dependency set current.
+
 ## 📄 License
 
 MIT — free to use, modify, and distribute.

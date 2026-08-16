@@ -224,3 +224,7 @@ The signaling layer relays connection metadata and encrypted-session setup messa
 
 MIT — free to use, modify, and distribute.
 
+
+## Why star this repository
+
+Star Secure-Drop if private peer-to-peer file transfer, WebRTC data channels, browser cryptography, or local-first privacy tooling is useful to you. Feedback on threat models, deployment hardening, and interoperability is especially welcome.

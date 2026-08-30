@@ -10,6 +10,7 @@ import { TelemetryWidget } from "@/components/TelemetryWidget";
 import { resolveSignalingUrl } from "@/lib/constants";
 import { playSend, playReceive } from "@/lib/sounds";
 import { zipDroppedFolder, zipMultipleFiles } from "@/lib/zip";
+import { toast } from "sonner";
 import type { Peer, TransferSession } from "@/types/transfer";
 
 /* ─── Helpers ─────────────────────────────────────────────────────── */
@@ -73,7 +74,7 @@ const TransferRow = ({ t, onView, onResume }: { t: TransferSession; onView: () =
 
 /* ─── Main Page ─────────────────────────────────────────────────────── */
 const LandingPage: React.FC = () => {
-  const { state, sendFileRequest, acceptTransfer, rejectTransfer, updateLocalLabel, resumeTransfer, cancelTransfer } = useSecureDrop();
+  const { state, sendFileRequest, acceptTransfer, rejectTransfer, updateLocalLabel, resumeTransfer, cancelTransfer, clearHistory } = useSecureDrop();
   const { isDark, toggle: toggleTheme } = useTheme();
 
   const [selectedPeers, setSelectedPeers] = useState<Peer[]>([]);
@@ -156,6 +157,25 @@ const LandingPage: React.FC = () => {
     const f = files[0];
     if (f) setPendingFile(f);
   }, []);
+
+  const handleClipboardSync = async () => {
+    if (selectedPeers.length === 0) {
+      toast.error("Please select a device first");
+      return;
+    }
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) {
+        toast.error("Clipboard is empty or contains non-text data.");
+        return;
+      }
+      const file = new File([new Blob([text], { type: "text/plain" })], `clipboard-${Date.now()}.txt`, { type: "text/plain" });
+      selectedPeers.forEach(peer => sendFileRequest(peer.id, file));
+      toast.success("Sent clipboard text!");
+    } catch (e) {
+      toast.error("Failed to read clipboard. Check permissions.");
+    }
+  };
 
   const handleSend = async () => {
     if (!pendingFile || selectedPeers.length === 0) return;
@@ -300,6 +320,15 @@ const LandingPage: React.FC = () => {
                 </button>
               </div>
             )}
+            <div className="mx-4 mb-4 flex justify-between items-center gap-2">
+               <button 
+                 onClick={handleClipboardSync}
+                 disabled={selectedPeers.length === 0}
+                 className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground text-sm font-semibold rounded-lg disabled:opacity-40 hover:bg-secondary/80 flex justify-center items-center gap-2 transition-all border border-secondary"
+               >
+                 📋 Sync Clipboard to Selected Device
+               </button>
+            </div>
           </div>
 
           {/* Active Transfers */}
@@ -319,7 +348,15 @@ const LandingPage: React.FC = () => {
           {/* History */}
           {done.length > 0 && (
             <div className="bg-card border border-border rounded-2xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-border"><h2 className="font-semibold text-base">History</h2></div>
+              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                <h2 className="font-semibold text-base">History</h2>
+                <button 
+                  onClick={clearHistory}
+                  className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md border border-border bg-muted/30"
+                >
+                  🗑️ Clear All
+                </button>
+              </div>
               <div className="divide-y divide-border">
                 {done.slice().reverse().map(t => (
                   <div key={t.id} className="border-b border-border/50 last:border-0">
@@ -379,8 +416,13 @@ const LandingPage: React.FC = () => {
                       return (
                         <button key={p.id} onClick={() => setSelectedPeers(prev => prev.some(x => x.id === p.id) ? prev.filter(x => x.id !== p.id) : [...prev, p])}
                           className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${isSelected ? "bg-primary/10 border-primary ring-1 ring-primary/30" : "bg-card border-border hover:border-primary/40 hover:bg-muted/30"}`}>
-                          <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${colorFor(p.label)} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
-                            {initials(p.label)}
+                          <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${colorFor(p.label)} flex items-center justify-center text-white overflow-hidden shrink-0`}>
+                            <img 
+                              src={`https://robohash.org/${encodeURIComponent(p.label)}?set=set1&size=100x100`} 
+                              alt={p.label} 
+                              className="h-full w-full object-cover bg-black/10" 
+                              crossOrigin="anonymous"
+                            />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm truncate">{p.label}</p>

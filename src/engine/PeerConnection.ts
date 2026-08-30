@@ -151,24 +151,57 @@ export class PeerConnection {
     // Forward ICE candidates to the remote peer via signaling.
     this.pc.onicecandidate = ({ candidate }) => {
       if (candidate) {
+        console.log(`[PeerConnection] New ICE candidate for ${this.remotePeerId}:`, candidate.type);
         this.signaling.sendIce(this.remotePeerId, candidate.toJSON());
       }
     };
 
     // The non-initiator receives the DataChannel that the initiator created.
     this.pc.ondatachannel = ({ channel }) => {
+      console.log(`[PeerConnection] DataChannel received from ${this.remotePeerId}`);
       this.dc = channel;
       this._attachDcHandlers(channel);
     };
 
     this.pc.onconnectionstatechange = () => {
+      console.log(`[PeerConnection] State change with ${this.remotePeerId}:`, this.pc.connectionState);
       this.stateHandlers.forEach((h) => h(this.pc.connectionState));
     };
   }
 
   private _attachDcHandlers(dc: RTCDataChannel): void {
     dc.binaryType = "arraybuffer";
-    dc.bufferedAmountLowThreshold = DC_BUFFER_THRESHOLD / 4; // fire drain early to keep pipe full
+    // Crucial for ultra-high speed: Fire backpressure event while we still have 256KB 
+    // Set the threshold for 'bufferedamountlow' event. 64KB is safer for 
+    // mobile devices than matching the chunk size exactly.
+    dc.bufferedAmountLowThreshold = 65_536; 
+
+    let isProcessing = false;
+    const msgQueue: (Blob | ArrayBuffer)[] = [];
+
+    const processQueue = async () => {
+      if (isProcessing || msgQueue.length === 0) return;
+      isProcessing = true;
+      while (msgQueue.length > 0) {
+        const data = msgQueue.shift()!;
+        try {
+          if (data instanceof ArrayBuffer) {
+            this.dataHandlers.forEach((h) => h(data));
+          } else if (data instanceof Blob) {
+            const buf = await data.arrayBuffer();
+            this.dataHandlers.forEach((h) => h(buf));
+          }
+        } catch (err) {
+          console.error("[PeerConnection] Error processing message:", err);
+        }
+      }
+      isProcessing = false;
+    };
+
+    // If the DataChannel is already open by the time we attach handlers
+    if (dc.readyState === "open") {
+      this.stateHandlers.forEach((h) => h("open"));
+    }
 
     dc.onopen = () => {
       this.stateHandlers.forEach((h) => h(dc.readyState));
@@ -185,9 +218,10 @@ export class PeerConnection {
     };
 
     dc.onmessage = ({ data }) => {
-      if (data instanceof ArrayBuffer) {
-        this.dataHandlers.forEach((h) => h(data));
-      }
+      if (data === "ping") return;
+      msgQueue.push(data);
+      processQueue();
     };
+
   }
 }

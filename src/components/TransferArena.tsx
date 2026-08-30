@@ -66,7 +66,14 @@ export const TransferArena: React.FC<TransferArenaProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm px-4">
       <Card className="w-full max-w-xl shadow-lg border-border animate-in fade-in zoom-in-95 duration-200">
-        <CardHeader className="text-center border-b pb-4">
+        <CardHeader className="relative text-center border-b pb-4">
+          <button 
+            onClick={onDismiss}
+            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+            title="Hide panel (transfer continues in background)"
+          >
+            <X className="h-5 w-5" />
+          </button>
           <CardTitle className="flex justify-center items-center gap-2 text-lg">
             <Shield className="h-5 w-5 text-primary" />
             {transfer.direction === "send" ? "Sending" : "Receiving"} File

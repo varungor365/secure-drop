@@ -99,3 +99,9 @@ export async function deleteChunksForTransfer(transferId: string): Promise<void>
   }
   await tx.done;
 }
+
+export async function clearAllHistory(): Promise<void> {
+  const db = await getDB();
+  await db.clear("transfers");
+  await db.clear("chunks");
+}

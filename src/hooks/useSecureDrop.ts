@@ -27,7 +27,7 @@ import {
   triggerDownload,
 } from "@/engine/ChunkTransfer";
 import { verifyTransferIntegrity } from "@/engine/IntegrityVerifier";
-import { getReceivedChunkIndices, getAllTransfers, saveTransfer } from "@/lib/db";
+import { getReceivedChunkIndices, getAllTransfers, saveTransfer, clearAllHistory } from "@/lib/db";
 import { ADJECTIVES, NOUNS, resolveSignalingUrl, CHUNK_SIZE_BYTES } from "@/lib/constants";
 import type {
   Peer,
@@ -57,9 +57,33 @@ function getDeviceHint(): string {
   const os = ua.includes("Mac") ? "macOS"
     : ua.includes("Win") ? "Windows"
       : ua.includes("Android") ? "Android"
-        : ua.includes("Linux") ? "Linux"
+        : "Linux" ? "Linux"
           : "Unknown OS";
   return `${browser} / ${os}`;
+}
+
+function playSuccessFeedback() {
+  if (typeof window !== "undefined" && navigator.vibrate) {
+    navigator.vibrate([100, 50, 100]);
+  }
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+    osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.2); // C6
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch (e) { /* ignore */ }
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────
@@ -92,6 +116,9 @@ export function useSecureDrop() {
 
   // AbortControllers for active send transfers: transferId → AbortController
   const abortControllersRef = useRef<Map<string, AbortController>>(new Map());
+
+  // Receiver-ready resolvers: peerId → resolve() called when phone sends receiver-ready signal
+  const receiverReadyResolversRef = useRef<Map<string, () => void>>(new Map());
 
   // ── React State ────────────────────────────────────────────────────────
 
@@ -248,6 +275,37 @@ export function useSecureDrop() {
         await connectionsRef.current.get(msg.fromPeerId)?.addIceCandidate(msg.candidate);
         break;
 
+      case "ecdh-pubkey": {
+        const theirKey = await importPeerPublicKey(msg.publicKeyJwk as JsonWebKey);
+        const remoteId = msg.fromPeerId;
+        // ALWAYS use ref — state.localPeerId can be stale (null) in async closures
+        const localId = localPeerIdRef.current ?? "";
+        const canonicalId = [localId, remoteId].sort().join("|");
+        
+        const sessionKey = await deriveSharedSessionKey(
+          keyPairRef.current!.privateKey,
+          theirKey,
+          canonicalId // CRITICAL: Must be identical on both peers
+        );
+        sessionKeysRef.current.set(remoteId, sessionKey);
+        setState((prev) => ({
+          ...prev,
+          sessionFingerprints: { ...prev.sessionFingerprints, [remoteId]: sessionKey.fingerprint },
+        }));
+
+        // If we are the sender, also respond with our own ECDH pubkey so the
+        // receiver can derive the same session key on their side.
+        const hasPending = pendingTransfersRef.current.has(remoteId);
+        if (hasPending && keyPairRef.current) {
+          signalingRef.current!.send({
+            type: "ecdh-pubkey",
+            toPeerId: remoteId,
+            publicKeyJwk: keyPairRef.current.publicKeyJwk,
+          });
+        }
+        break;
+      }
+
       case "transfer-request":
         setState((prev) => ({
           ...prev,
@@ -344,25 +402,15 @@ export function useSecureDrop() {
         }
         break;
       }
-    }
-
-    // ecdh-pubkey is not in the union — handle as raw
-    const raw = msg as Record<string, unknown>;
-    if (raw.type === "ecdh-pubkey" && raw.fromPeerId && raw.publicKeyJwk) {
-      const theirKey = await importPeerPublicKey(raw.publicKeyJwk as JsonWebKey);
-      const remoteId = raw.fromPeerId as string;
-      const localId = localPeerIdRef.current ?? "";
-      const canonicalId = [localId, remoteId].sort().join("|");
-      const sessionKey = await deriveSharedSessionKey(
-        keyPairRef.current!.privateKey,
-        theirKey,
-        canonicalId,
-      );
-      sessionKeysRef.current.set(remoteId, sessionKey);
-      setState((prev) => ({
-        ...prev,
-        sessionFingerprints: { ...prev.sessionFingerprints, [remoteId]: sessionKey.fingerprint },
-      }));
+      case "receiver-ready": {
+        // Phone signals Mac that it has registered its onData handler and is ready to receive.
+        const resolve = receiverReadyResolversRef.current.get(msg.fromPeerId);
+        if (resolve) {
+          resolve();
+          receiverReadyResolversRef.current.delete(msg.fromPeerId);
+        }
+        break;
+      }
     }
   };
 
@@ -495,19 +543,35 @@ export function useSecureDrop() {
       saveTransfer(transferIn).catch(console.error);
 
       // Wait for session key to be derived (may take a moment after ECDH).
+      // Times out after 20 s — prevents silent infinite hang if ECDH message is dropped.
       const waitForKey = () =>
-        new Promise<DerivedSessionKey>((resolve) => {
+        new Promise<DerivedSessionKey>((resolve, reject) => {
+          const deadline = Date.now() + 20_000;
           const check = () => {
             const key = sessionKeysRef.current.get(fromPeer.id);
             if (key) return resolve(key);
+            if (Date.now() > deadline) return reject(new Error("[useSecureDrop] ECDH key never arrived — transfer failed"));
+            setTimeout(check, 100);
+          };
+          check();
+        });
+
+      // Wait for the WebRTC connection (offer may still be in-flight when user taps Accept).
+      const waitForConn = () =>
+        new Promise<import("@/engine/PeerConnection").PeerConnection>((resolve, reject) => {
+          const deadline = Date.now() + 20_000;
+          const check = () => {
+            const c = connectionsRef.current.get(fromPeer.id);
+            if (c) return resolve(c);
+            if (Date.now() > deadline) return reject(new Error("[useSecureDrop] WebRTC connection never established"));
             setTimeout(check, 100);
           };
           check();
         });
 
       try {
-        const sessionKey = await waitForKey();
-        const conn = connectionsRef.current.get(fromPeer.id)!;
+        // Resolve both the session key AND the connection (either may arrive first).
+        const [sessionKey, conn] = await Promise.all([waitForKey(), waitForConn()]);
 
         patchTransfer(transferId, { state: "transferring" });
 
@@ -516,7 +580,14 @@ export function useSecureDrop() {
           transferId,
           sessionKey.aesKey,
           meta,
-          (handler) => conn.onData(handler),
+          (handler) => {
+            const cleanup = conn.onData(handler);
+            // ── Signal the sender that we are ready to receive ──────────────
+            // This replaces the blind fixed delay on the sender side. The Mac will
+            // not start pumping chunks until it receives this signal (or times out).
+            signalingRef.current!.send({ type: "receiver-ready", toPeerId: fromPeer.id });
+            return cleanup;
+          },
           (received, total) => {
             const elapsed = (Date.now() - startTime) / 1000;
             const bytesReceived = received * CHUNK_SIZE_BYTES;
@@ -539,6 +610,7 @@ export function useSecureDrop() {
           integrityVerified: result.status === "verified",
         });
 
+        playSuccessFeedback();
         triggerDownload(fileBuffer, meta.name, meta.mimeType);
       } catch (err) {
         console.error("[useSecureDrop] Receive transfer error:", err);
@@ -565,10 +637,12 @@ const _beginSendTransfer = useCallback(
     const { file, transferId } = pending;
 
     const waitForKey = () =>
-      new Promise<DerivedSessionKey>((resolve) => {
+      new Promise<DerivedSessionKey>((resolve, reject) => {
+        const deadline = Date.now() + 20_000;
         const check = () => {
           const key = sessionKeysRef.current.get(fromPeerId);
           if (key) return resolve(key);
+          if (Date.now() > deadline) return reject(new Error("[useSecureDrop] Sender ECDH key never arrived"));
           setTimeout(check, 100);
         };
         check();
@@ -576,6 +650,19 @@ const _beginSendTransfer = useCallback(
 
     try {
       const sessionKey = await waitForKey();
+
+      // ── Wait for receiver-ready signal (or fallback after 8s) ──────────
+      // The phone sends 'receiver-ready' after registering its onData handler.
+      // This is far more reliable than a fixed delay — it's an explicit handshake.
+      await new Promise<void>((resolve) => {
+        // Store resolver so the signaling handler can call it.
+        receiverReadyResolversRef.current.set(fromPeerId, resolve);
+        // Safety fallback: if signal is dropped, start anyway after 8s.
+        setTimeout(() => {
+          receiverReadyResolversRef.current.delete(fromPeerId);
+          resolve();
+        }, 8_000);
+      });
       patchTransfer(transferId, { state: "encrypting" });
 
       const abortController = new AbortController();
@@ -599,6 +686,7 @@ const _beginSendTransfer = useCallback(
         completedAt: Date.now(),
         integrityVerified: true,
       });
+      playSuccessFeedback();
     } catch (err: any) {
       abortControllersRef.current.delete(transferId);
       if (err?.name === "AbortError") {
@@ -671,13 +759,19 @@ const cancelTransfer = useCallback((transferId: string) => {
   patchTransfer(transferId, { state: "failed" });
 }, [state.transfers, patchTransfer]);
 
+const clearHistory = useCallback(async () => {
+  await clearAllHistory();
+  patchState({ transfers: [] });
+}, [patchState]);
+
 return {
   state,
+  updateLocalLabel,
   sendFileRequest,
   acceptTransfer,
   rejectTransfer,
-  updateLocalLabel,
   resumeTransfer,
   cancelTransfer,
+  clearHistory,
 };
 }

@@ -6,8 +6,7 @@
  */
 
 /** WebSocket signaling server connection (defaults to LAN loopback in dev). */
-export const SIGNALING_URL: string =
-  import.meta.env.VITE_SIGNALING_URL ?? "ws://localhost:8765";
+export const SIGNALING_URL: string = resolveSignalingUrl();
 
 /**
  * Resolve the signaling URL at runtime.
@@ -18,22 +17,22 @@ export const SIGNALING_URL: string =
  *   4. ws://localhost:8765 fallback
  */
 export function resolveSignalingUrl(): string {
-  // 1. Build-time env — used in Vercel production build
-  if (import.meta.env.VITE_SIGNALING_URL) {
-    return import.meta.env.VITE_SIGNALING_URL as string;
-  }
-
   if (typeof window !== "undefined") {
     // 2. ?ws= override from QR code
     const qs = new URLSearchParams(window.location.search).get("ws");
     if (qs) return qs;
 
-    // 3. Route through same host via Vite's /ws proxy (local dev).
+    // 3. If running on Vercel or any public domain, use the Render URL.
+    if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+      return "wss://secure-drop-bamd.onrender.com";
+    }
+
+    // 4. Route through same host via Vite's /ws proxy (local dev).
     const proto = window.location.protocol === "https:" ? "wss" : "ws";
     return `${proto}://${window.location.host}/ws`;
   }
 
-  // 4. Fallback
+  // 5. Fallback
   return "ws://localhost:8765";
 }
 /**
@@ -54,9 +53,9 @@ export const CHUNK_SIZE_BYTES = 262_144; // 256 KB — maximizes DataChannel thr
 /**
  * Maximum number of WebRTC DataChannel bytes allowed to queue
  * before the sender pauses and waits for drain.
- * 16 MB buffer allows high throughput without triggering browser disconnects.
+ * 256 KB is more stable for high-latency mobile networks than 1MB.
  */
-export const DC_BUFFER_THRESHOLD = 16_777_216; // 16 MB
+export const DC_BUFFER_THRESHOLD = 262_144; // 256 KB (matched to chunk size)
 
 /** AES-256-GCM IV length in bytes (NIST SP 800-38D §8.2). */
 export const GCM_IV_LENGTH = 12;
@@ -83,10 +82,23 @@ export const RECONNECT_BACKOFF_FACTOR = 2;
 /** Interval at which the UI polls for speed/ETA recalculation (ms). */
 export const SPEED_SAMPLE_INTERVAL_MS = 1_000;
 
-/** STUN servers used for WebRTC ICE negotiation (LAN-only STUN). */
+/** STUN/TURN servers used for WebRTC ICE negotiation (allows Cellular routing). */
 export const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
+  { urls: "stun:stun2.l.google.com:19302" },
+  { urls: "stun:stun3.l.google.com:19302" },
+  { urls: "stun:stun4.l.google.com:19302" },
+  { urls: "stun:stun.cloudflare.com:3478" },
+  {
+    urls: [
+      "turn:openrelay.metered.ca:80",
+      "turn:openrelay.metered.ca:443",
+      "turns:openrelay.metered.ca:443?transport=tcp"
+    ],
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
 ];
 
 /** Label auto-generation wordlists. */
@@ -94,6 +106,7 @@ export const ADJECTIVES = [
   "Quantum", "Orbital", "Stellar", "Cryptic", "Silent",
   "Phantom", "Vector", "Cipher", "Atomic", "Nexus",
 ];
+
 export const NOUNS = [
   "Node", "Relay", "Beacon", "Vault", "Proxy",
   "Link", "Core", "Gate", "Pulse", "Mesh",
